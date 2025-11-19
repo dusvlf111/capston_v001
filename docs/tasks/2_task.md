@@ -37,31 +37,72 @@
   - `src/app/login/page.tsx` - 로그인 페이지
   - `src/app/signup/page.tsx` - 회원가입 페이지
   - `src/app/api/auth/callback/route.ts` - OAuth 콜백 핸들러
+    - `.env.local` - Supabase 프로젝트 연결 정보 (URL, 키, DB)
+    - `src/lib/supabase/` - Supabase 클라이언트 및 미들웨어 파일 위치
+    - `scripts/checkSupabaseEnv.mjs` - 환경 변수 유효성 검증 스크립트
+    - `scripts/checkSupabaseDir.mjs` - 클라이언트 폴더 존재 여부 검증 스크립트
+    - `supabase/sql/2_2_schema.sql` - 원격 DB 스키마 정의 SQL
+    - `scripts/runSql.mjs` - SQL 파일을 DATABASE_URL로 실행하는 스크립트
+    - `scripts/checkSchema.mjs` - 원격 DB 테이블 존재 여부 확인 스크립트
+    - `src/lib/supabase/` - Supabase 클라이언트 및 미들웨어 파일 위치
 
 -----
 
 ## 작업
 
-  - [ ] 2.0 환경 변수 및 프로젝트 연결 설정 (Push 단위)
+    - [x] 2.0 환경 변수 및 프로젝트 연결 설정 (Push 단위)
 
-      - [ ] 2.0.1 Supabase Dashboard에서 새 프로젝트 생성 (이미 있다면 Skip)
+      - [x] 2.0.1 Supabase Dashboard에서 새 프로젝트 생성 (이미 있다면 Skip) — 기존 프로젝트 `eoahsfacchzdakvadhfr` 재확인
+          - [x] 2.0.1.1 테스트 코드 작성 (`scripts/checkSupabaseEnv.mjs` url 모드)
+          - [x] 2.0.1.2 테스트 실행 및 검증 (`node scripts/checkSupabaseEnv.mjs url`)
+          - [x] 2.0.1.3 오류 수정 (필요 시) - N/A
       - [ ] 2.0.2 `.env.local` 파일 생성 및 설정
-          - [ ] 2.0.2.1 `NEXT_PUBLIC_SUPABASE_URL` (Project Settings \> API)
-          - [ ] 2.0.2.2 `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Project Settings \> API)
-          - [ ] 2.0.2.3 `DATABASE_URL` (Project Settings \> Database \> Connection String)
-      - [ ] 2.0.3 연결 테스트: `src/lib/supabase` 폴더 구조 확인
+          - [x] 2.0.2.1 `NEXT_PUBLIC_SUPABASE_URL` (Project Settings > API)
+              - [x] 2.0.2.1.1 테스트 코드 작성 (`scripts/checkSupabaseEnv.mjs` url 모드)
+              - [x] 2.0.2.1.2 테스트 실행 및 검증 (`node scripts/checkSupabaseEnv.mjs url`)
+              - [x] 2.0.2.1.3 오류 수정 (필요 시) - N/A
+              - [x] 2.0.2.2 `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Project Settings > API)
+                  - [x] 2.0.2.2.1 테스트 코드 작성 (`scripts/checkSupabaseEnv.mjs` anon 모드)
+                  - [x] 2.0.2.2.2 테스트 실행 및 검증 (`node scripts/checkSupabaseEnv.mjs anon`)
+                  - [x] 2.0.2.2.3 오류 수정 (필요 시) - N/A
+          - [x] 2.0.2.3 `DATABASE_URL` (Project Settings > Database > Connection String)
+              - [x] 2.0.2.3.1 테스트 코드 작성 (`scripts/checkSupabaseEnv.mjs` database 모드)
+              - [x] 2.0.2.3.2 테스트 실행 및 검증 (`node scripts/checkSupabaseEnv.mjs database`)
+              - [x] 2.0.2.3.3 오류 수정 (필요 시) - N/A
+      - [x] 2.0.3 연결 테스트: `src/lib/supabase` 폴더 구조 확인
+          - [x] 2.0.3.1 테스트 코드 작성 (`scripts/checkSupabaseDir.mjs`)
+          - [x] 2.0.3.2 테스트 실행 및 검증 (`node scripts/checkSupabaseDir.mjs`)
+          - [x] 2.0.3.3 오류 수정 (필요 시) - N/A
 
   - [ ] 2.1 PostgreSQL 데이터베이스 스키마 적용 (커밋 단위)
 
       - [ ] 2.1.1 `supabase/sql/2_2_schema.sql` 파일 작성
           - *내용*: `profiles`, `reports`, `safety_zones` 테이블 정의 및 `report_seq` 시퀀스
+          - [ ] 2.1.1.1 테스트 코드 작성
+          - [ ] 2.1.1.2 테스트 실행 및 검증
+          - [ ] 2.1.1.3 오류 수정 (필요 시)
       - [ ] 2.1.2 `profiles` 테이블 정의 포함
           - 컬럼: id, user\_id (FK to auth.users), full\_name, phone, emergency\_contact, created\_at
+          - [ ] 2.1.2.1 테스트 코드 작성
+          - [ ] 2.1.2.2 테스트 실행 및 검증
+          - [ ] 2.1.2.3 오류 수정 (필요 시)
       - [ ] 2.1.3 `reports` 테이블 정의 포함
           - 컬럼: id, user\_id, location\_data, status (CHECK: APPROVED, CAUTION, DENIED), safety\_score
+          - [ ] 2.1.3.1 테스트 코드 작성
+          - [ ] 2.1.3.2 테스트 실행 및 검증
+          - [ ] 2.1.3.3 오류 수정 (필요 시)
       - [ ] 2.1.4 `safety_zones` 테이블 정의 포함
+          - [ ] 2.1.4.1 테스트 코드 작성
+          - [ ] 2.1.4.2 테스트 실행 및 검증
+          - [ ] 2.1.4.3 오류 수정 (필요 시)
       - [ ] 2.1.5 **SQL 실행**: 리모트 DB에 스키마 적용 (`psql` 또는 Dashboard)
-      - [ ] 2.1.6 적용 확인: Dashboard \> Table Editor에서 테이블 생성 확인
+          - [ ] 2.1.5.1 테스트 코드 작성
+          - [ ] 2.1.5.2 테스트 실행 및 검증
+          - [ ] 2.1.5.3 오류 수정 (필요 시)
+      - [ ] 2.1.6 적용 확인: Dashboard > Table Editor에서 테이블 생성 확인
+          - [ ] 2.1.6.1 테스트 코드 작성
+          - [ ] 2.1.6.2 테스트 실행 및 검증
+          - [ ] 2.1.6.3 오류 수정 (필요 시)
 
   - [ ] 2.2 Row Level Security (RLS) 정책 적용 (커밋 단위)
 
