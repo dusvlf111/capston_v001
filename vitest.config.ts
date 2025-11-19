@@ -1,11 +1,14 @@
 import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
 import path from 'node:path';
 
 export default defineConfig({
+  plugins: [react()],
   test: {
     globals: true,
-    environment: 'node',
-    include: ['src/**/*.test.ts']
+    environment: 'happy-dom',
+    setupFiles: ['./vitest.setup.ts'],
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx']
   },
   resolve: {
     alias: {
