@@ -106,7 +106,24 @@ export type Database = {
       };
     };
     Views: never;
-    Functions: never;
+    Functions: {
+      submit_report: {
+        Args: {
+          location_name: string;
+          location_lat: number;
+          location_lng: number;
+          activity_type: string;
+          start_time: string;
+          end_time: string;
+          participants: number;
+          contact_name: string;
+          contact_phone: string;
+          emergency_contact: string;
+          notes?: string | null;
+        };
+        Returns: Json;
+      };
+    };
     Enums: never;
     CompositeTypes: never;
   };

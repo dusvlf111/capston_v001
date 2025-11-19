@@ -55,5 +55,6 @@ export interface ReportResponse {
   location: LocationPayload;
   activity: ActivityPayload;
   contact: ContactPayload;
+  notes?: string;
   analysis?: Record<string, unknown>;
 }
