@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
+import type { Database } from "@/types/database.types";
 import { mapReportRowToResponse } from "@/lib/utils/reportTransform";
 import {
   matchRegionByLocation,
@@ -71,11 +72,13 @@ export default async function ReportDetailPage({ params }: PageProps) {
     .eq("id", params.id)
     .single();
 
-  if (error || !data || data.user_id !== session.user.id) {
+  const reportRow = data as Database["public"]["Tables"]["reports"]["Row"] | null;
+
+  if (error || !reportRow || reportRow.user_id !== session.user.id) {
     notFound();
   }
 
-  const report = mapReportRowToResponse(data);
+  const report = mapReportRowToResponse(reportRow);
   const safetyInsight = getSafetyInsight(report.location.name);
 
   return (
