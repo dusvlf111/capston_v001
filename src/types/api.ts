@@ -1,5 +1,20 @@
 export type ReportStatus = 'APPROVED' | 'CAUTION' | 'DENIED';
 
+export const ACTIVITY_TYPES = [
+  '패들보드',
+  '카약',
+  '윈드서핑',
+  '서핑',
+  '요트',
+  '스쿠버다이빙',
+  '스노클링',
+  '수상오토바이',
+  '카누',
+  '세일링'
+] as const;
+
+export type ActivityType = (typeof ACTIVITY_TYPES)[number];
+
 export type Coordinates = {
   latitude: number;
   longitude: number;
@@ -11,7 +26,7 @@ export interface LocationPayload {
 }
 
 export interface ActivityPayload {
-  type: string;
+  type: ActivityType;
   startTime: string;
   endTime: string;
   participants: number;

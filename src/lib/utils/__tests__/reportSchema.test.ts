@@ -64,6 +64,18 @@ describe('reportSchema', () => {
 
     expect(() => reportSchema.parse(invalid)).toThrowError(/전화번호는 010-XXXX-XXXX/);
   });
+
+  it('rejects unsupported activity types', () => {
+    const invalid = {
+      ...basePayload,
+      activity: {
+        ...basePayload.activity,
+        type: '드론서핑'
+      }
+    };
+
+    expect(() => reportSchema.parse(invalid)).toThrowError();
+  });
 });
 
 describe('parseReport', () => {

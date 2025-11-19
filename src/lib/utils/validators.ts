@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ACTIVITY_TYPES } from '@/types/api';
 import type { ReportRequest } from '@/types/api';
 
 const coordinateSchema = z.object({
@@ -11,9 +12,16 @@ const locationSchema = z.object({
   coordinates: coordinateSchema
 });
 
+const activityTypeEnum = z.enum(
+  [...ACTIVITY_TYPES] as [
+    (typeof ACTIVITY_TYPES)[number],
+    ...(typeof ACTIVITY_TYPES)[number][]
+  ]
+);
+
 const activitySchema = z
   .object({
-    type: z.string().min(1, '활동 유형을 선택하세요.'),
+    type: activityTypeEnum,
     startTime: z.string().datetime({ message: '시작 시간을 ISO 형식으로 입력하세요.' }),
     endTime: z.string().datetime({ message: '종료 시간을 ISO 형식으로 입력하세요.' }),
     participants: z
