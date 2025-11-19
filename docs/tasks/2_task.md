@@ -44,6 +44,9 @@
     - `supabase/sql/2_2_schema.sql` - 원격 DB 스키마 정의 SQL
     - `scripts/runSql.mjs` - SQL 파일을 DATABASE_URL로 실행하는 스크립트
     - `scripts/checkSchema.mjs` - 원격 DB 테이블 존재 여부 확인 스크립트
+    - `scripts/assertSqlContains.mjs` - SQL 파일 내 필수 구문 존재 여부 검증 스크립트
+    - `supabase/sql/2_3_rls.sql` - 테이블별 RLS 정책 정의 SQL
+    - `scripts/checkRlsPolicies.mjs` - `pg_policies` 조회를 통한 정책 생성 확인 스크립트
     - `src/lib/supabase/` - Supabase 클라이언트 및 미들웨어 파일 위치
 
 -----
@@ -74,58 +77,88 @@
           - [x] 2.0.3.2 테스트 실행 및 검증 (`node scripts/checkSupabaseDir.mjs`)
           - [x] 2.0.3.3 오류 수정 (필요 시) - N/A
 
-  - [ ] 2.1 PostgreSQL 데이터베이스 스키마 적용 (커밋 단위)
+  - [x] 2.1 PostgreSQL 데이터베이스 스키마 적용 (커밋 단위)
 
-      - [ ] 2.1.1 `supabase/sql/2_2_schema.sql` 파일 작성
+      - [x] 2.1.1 `supabase/sql/2_2_schema.sql` 파일 작성
           - *내용*: `profiles`, `reports`, `safety_zones` 테이블 정의 및 `report_seq` 시퀀스
-          - [ ] 2.1.1.1 테스트 코드 작성
-          - [ ] 2.1.1.2 테스트 실행 및 검증
-          - [ ] 2.1.1.3 오류 수정 (필요 시)
-      - [ ] 2.1.2 `profiles` 테이블 정의 포함
+          - [x] 2.1.1.1 테스트 코드 작성 (`scripts/assertSqlContains.mjs`)
+          - [x] 2.1.1.2 테스트 실행 및 검증 (`node scripts/assertSqlContains.mjs supabase/sql/2_2_schema.sql "CREATE TABLE IF NOT EXISTS public.profiles" ...`)
+          - [x] 2.1.1.3 오류 수정 (필요 시) - N/A
+      - [x] 2.1.2 `profiles` 테이블 정의 포함
           - 컬럼: id, user\_id (FK to auth.users), full\_name, phone, emergency\_contact, created\_at
-          - [ ] 2.1.2.1 테스트 코드 작성
-          - [ ] 2.1.2.2 테스트 실행 및 검증
-          - [ ] 2.1.2.3 오류 수정 (필요 시)
-      - [ ] 2.1.3 `reports` 테이블 정의 포함
+          - [x] 2.1.2.1 테스트 코드 작성 (`scripts/assertSqlContains.mjs`)
+          - [x] 2.1.2.2 테스트 실행 및 검증 (`node scripts/assertSqlContains.mjs supabase/sql/2_2_schema.sql "user_id UUID NOT NULL" ...`)
+          - [x] 2.1.2.3 오류 수정 (필요 시) - N/A
+      - [x] 2.1.3 `reports` 테이블 정의 포함
           - 컬럼: id, user\_id, location\_data, status (CHECK: APPROVED, CAUTION, DENIED), safety\_score
-          - [ ] 2.1.3.1 테스트 코드 작성
-          - [ ] 2.1.3.2 테스트 실행 및 검증
-          - [ ] 2.1.3.3 오류 수정 (필요 시)
-      - [ ] 2.1.4 `safety_zones` 테이블 정의 포함
-          - [ ] 2.1.4.1 테스트 코드 작성
-          - [ ] 2.1.4.2 테스트 실행 및 검증
-          - [ ] 2.1.4.3 오류 수정 (필요 시)
-      - [ ] 2.1.5 **SQL 실행**: 리모트 DB에 스키마 적용 (`psql` 또는 Dashboard)
-          - [ ] 2.1.5.1 테스트 코드 작성
-          - [ ] 2.1.5.2 테스트 실행 및 검증
-          - [ ] 2.1.5.3 오류 수정 (필요 시)
-      - [ ] 2.1.6 적용 확인: Dashboard > Table Editor에서 테이블 생성 확인
-          - [ ] 2.1.6.1 테스트 코드 작성
-          - [ ] 2.1.6.2 테스트 실행 및 검증
-          - [ ] 2.1.6.3 오류 수정 (필요 시)
+          - [x] 2.1.3.1 테스트 코드 작성 (`scripts/assertSqlContains.mjs`)
+          - [x] 2.1.3.2 테스트 실행 및 검증 (`node scripts/assertSqlContains.mjs supabase/sql/2_2_schema.sql "location_data JSONB" ...`)
+          - [x] 2.1.3.3 오류 수정 (필요 시) - N/A
+      - [x] 2.1.4 `safety_zones` 테이블 정의 포함
+          - [x] 2.1.4.1 테스트 코드 작성 (`scripts/assertSqlContains.mjs`)
+          - [x] 2.1.4.2 테스트 실행 및 검증 (`node scripts/assertSqlContains.mjs supabase/sql/2_2_schema.sql "zone_name TEXT NOT NULL" ...`)
+          - [x] 2.1.4.3 오류 수정 (필요 시) - N/A
+      - [x] 2.1.5 **SQL 실행**: 리모트 DB에 스키마 적용 (`psql` 또는 Dashboard)
+          - [x] 2.1.5.1 테스트 코드 작성 (`scripts/runSql.mjs`)
+          - [x] 2.1.5.2 테스트 실행 및 검증 (`node scripts/runSql.mjs supabase/sql/2_2_schema.sql`)
+          - [x] 2.1.5.3 오류 수정 (필요 시) - 최초 `Tenant or user not found` → Supabase Connection Pool 호스트(`aws-1-ap-northeast-2.pooler.supabase.com`)와 사용자(`postgres.<project-ref>` )로 교체하여 해결
+      - [x] 2.1.6 적용 확인: Dashboard > Table Editor에서 테이블 생성 확인
+          - [x] 2.1.6.1 테스트 코드 작성 (`scripts/checkSchema.mjs`)
+          - [x] 2.1.6.2 테스트 실행 및 검증 (`node scripts/checkSchema.mjs profiles reports safety_zones`)
+          - [x] 2.1.6.3 오류 수정 (필요 시) - N/A
 
-  - [ ] 2.2 Row Level Security (RLS) 정책 적용 (커밋 단위)
+  - [x] 2.2 Row Level Security (RLS) 정책 적용 (커밋 단위)
 
-      - [ ] 2.2.1 `supabase/sql/2_3_rls.sql` 파일 작성
-      - [ ] 2.2.2 `profiles` 정책 정의
+      - [x] 2.2.1 `supabase/sql/2_3_rls.sql` 파일 작성
+          - [x] 2.2.1.1 테스트 코드 작성 (`scripts/assertSqlContains.mjs`)
+          - [x] 2.2.1.2 테스트 실행 및 검증 (`node scripts/assertSqlContains.mjs supabase/sql/2_3_rls.sql "CREATE POLICY profiles_select_own" ...`)
+          - [x] 2.2.1.3 오류 수정 (필요 시) - N/A
+      - [x] 2.2.2 `profiles` 정책 정의
           - SELECT/UPDATE: `auth.uid() = user_id` (본인만)
           - INSERT: 인증된 사용자 허용
-      - [ ] 2.2.3 `reports` 정책 정의
+          - [x] 2.2.2.1 테스트 코드 작성 (`scripts/assertSqlContains.mjs`)
+          - [x] 2.2.2.2 테스트 실행 및 검증 (profiles 관련 패턴 체크)
+          - [x] 2.2.2.3 오류 수정 (필요 시) - N/A
+      - [x] 2.2.3 `reports` 정책 정의
           - SELECT: `auth.uid() = user_id` (본인 기록만 조회)
           - INSERT: 인증된 사용자 허용
-      - [ ] 2.2.4 `safety_zones` 정책 정의
+          - [x] 2.2.3.1 테스트 코드 작성 (`scripts/assertSqlContains.mjs`)
+          - [x] 2.2.3.2 테스트 실행 및 검증 (reports 관련 패턴 체크)
+          - [x] 2.2.3.3 오류 수정 (필요 시) - N/A
+      - [x] 2.2.4 `safety_zones` 정책 정의
           - SELECT: `true` (누구나 조회 가능/Public)
-      - [ ] 2.2.5 **SQL 실행**: 리모트 DB에 정책 적용
-      - [ ] 2.2.6 적용 확인: Dashboard \> Authentication \> Policies
+          - [x] 2.2.4.1 테스트 코드 작성 (`scripts/assertSqlContains.mjs`)
+          - [x] 2.2.4.2 테스트 실행 및 검증 (`node scripts/assertSqlContains.mjs supabase/sql/2_3_rls.sql "CREATE POLICY safety_zones_select_public" ...`)
+          - [x] 2.2.4.3 오류 수정 (필요 시) - N/A
+      - [x] 2.2.5 **SQL 실행**: 리모트 DB에 정책 적용
+          - [x] 2.2.5.1 테스트 코드 작성 (`scripts/runSql.mjs`)
+          - [x] 2.2.5.2 테스트 실행 및 검증 (`node scripts/runSql.mjs supabase/sql/2_3_rls.sql`)
+          - [x] 2.2.5.3 오류 수정 (필요 시) - N/A
+      - [x] 2.2.6 적용 확인: Dashboard > Authentication > Policies
+          - [x] 2.2.6.1 테스트 코드 작성 (`scripts/checkRlsPolicies.mjs`)
+          - [x] 2.2.6.2 테스트 실행 및 검증 (`node scripts/checkRlsPolicies.mjs`)
+          - [x] 2.2.6.3 오류 수정 (필요 시) - N/A
 
   - [ ] 2.3 Supabase 타입 생성 및 클라이언트 설정 (커밋 단위)
 
       - [ ] 2.3.1 TypeScript 타입 생성 (Remote DB 기준)
           - `npx supabase gen types typescript --project-id "PROJECT_ID" > src/types/database.types.ts`
           - *(CLI 설치 없이 npx 사용, 로그인 필요 시 `npx supabase login` 선행)*
+          - [ ] 2.3.1.1 테스트 코드 작성
+          - [ ] 2.3.1.2 테스트 실행 및 검증
+          - [ ] 2.3.1.3 오류 수정 (필요 시)
       - [ ] 2.3.2 `src/lib/supabase/client.ts` 생성 (Browser Client)
+          - [ ] 2.3.2.1 테스트 코드 작성
+          - [ ] 2.3.2.2 테스트 실행 및 검증
+          - [ ] 2.3.2.3 오류 수정 (필요 시)
       - [ ] 2.3.3 `src/lib/supabase/server.ts` 생성 (Server Component Client)
+          - [ ] 2.3.3.1 테스트 코드 작성
+          - [ ] 2.3.3.2 테스트 실행 및 검증
+          - [ ] 2.3.3.3 오류 수정 (필요 시)
       - [ ] 2.3.4 `src/lib/supabase/middleware.ts` 생성 (Middleware Client)
+          - [ ] 2.3.4.1 테스트 코드 작성
+          - [ ] 2.3.4.2 테스트 실행 및 검증
+          - [ ] 2.3.4.3 오류 수정 (필요 시)
 
   - [ ] 2.4 Next.js 미들웨어 구현 (커밋 단위)
 
