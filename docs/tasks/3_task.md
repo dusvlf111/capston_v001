@@ -58,43 +58,43 @@
             - [x] 3.2.5.2 테스트 실행 및 검증
             - [x] 3.2.5.3 오류 수정 (필요 시)
 
-    - [ ] 3.3 활동 선택 컴포넌트 구현 (커밋 단위)
-        - [ ] 3.3.1 `src/components/forms/ActivitySelector.tsx` 생성
-        - [ ] 3.3.2 활동 타입 선택 (Select 또는 Radio 버튼)
-        - [ ] 3.3.3 시작 시간 선택 (DateTime Picker)
-        - [ ] 3.3.4 종료 시간 선택 (DateTime Picker)
-        - [ ] 3.3.5 참가자 수 입력 (Number Input)
-        - [ ] 3.3.6 시간 검증: 종료 시간이 시작 시간보다 늦어야 함
-            - [ ] 3.3.6.1 테스트 코드 작성
-            - [ ] 3.3.6.2 테스트 실행 및 검증
-            - [ ] 3.3.6.3 오류 수정 (필요 시)
+    - [x] 3.3 활동 선택 컴포넌트 구현 (커밋 단위)
+        - [x] 3.3.1 `src/components/forms/ActivitySelector.tsx` 생성
+        - [x] 3.3.2 활동 타입 선택 (Select 또는 Radio 버튼)
+        - [x] 3.3.3 시작 시간 선택 (DateTime Picker)
+        - [x] 3.3.4 종료 시간 선택 (DateTime Picker)
+        - [x] 3.3.5 참가자 수 입력 (Number Input)
+        - [x] 3.3.6 시간 검증: 종료 시간이 시작 시간보다 늦어야 함
+            - [x] 3.3.6.1 테스트 코드 작성
+            - [x] 3.3.6.2 테스트 실행 및 검증 (`npm run test`)
+            - [x] 3.3.6.3 오류 수정 (필요 시)
 
-    - [ ] 3.4 연락처 입력 폼 구현 (커밋 단위)
-        - [ ] 3.4.1 `src/components/forms/ContactForm.tsx` 생성
-        - [ ] 3.4.2 이름 입력 필드
-        - [ ] 3.4.3 전화번호 입력 (포맷 검증: 010-XXXX-XXXX)
-        - [ ] 3.4.4 응급연락처 입력
-        - [ ] 3.4.5 프로필 정보 자동 채우기 (useAuth 훅 활용)
-            - [ ] 3.4.5.1 테스트 코드 작성
-            - [ ] 3.4.5.2 테스트 실행 및 검증
-            - [ ] 3.4.5.3 오류 수정 (필요 시)
+    - [x] 3.4 연락처 입력 폼 구현 (커밋 단위)
+        - [x] 3.4.1 `src/components/forms/ContactForm.tsx` 생성
+        - [x] 3.4.2 이름 입력 필드
+        - [x] 3.4.3 전화번호 입력 (포맷 검증: 010-XXXX-XXXX)
+        - [x] 3.4.4 응급연락처 입력
+        - [x] 3.4.5 프로필 정보 자동 채우기 (useAuth 훅 활용)
+            - [x] 3.4.5.1 테스트 코드 작성
+            - [x] 3.4.5.2 테스트 실행 및 검증 (`npm run test`)
+            - [x] 3.4.5.3 오류 수정 (필요 시)
 
-    - [ ] 3.5 메인 자율신고 폼 통합 (커밋 단위)
-        - [ ] 3.5.1 `src/components/forms/ReportForm.tsx` 생성
-        - [ ] 3.5.2 React Hook Form 설정 (useForm)
-        - [ ] 3.5.3 LocationSelector, ActivitySelector, ContactForm 통합
-        - [ ] 3.5.4 폼 제출 핸들러 구현
-            - [ ] 3.5.4.1 onSubmit 함수 작성
-            - [ ] 3.5.4.2 API 호출 로직
-            - [ ] 3.5.4.3 로딩 상태 관리
-            - [ ] 3.5.4.4 성공/실패 메시지 표시
-            - [ ] 3.5.4.5 테스트 코드 작성
-            - [ ] 3.5.4.6 테스트 실행 및 검증
-            - [ ] 3.5.4.7 오류 수정 (필요 시)
-        - [ ] 3.5.5 폼 초기화 기능
-            - [ ] 3.5.5.1 테스트 코드 작성
-            - [ ] 3.5.5.2 테스트 실행 및 검증
-            - [ ] 3.5.5.3 오류 수정 (필요 시)
+    - [x] 3.5 메인 자율신고 폼 통합 (커밋 단위)
+        - [x] 3.5.1 `src/components/forms/ReportForm.tsx` 생성
+        - [x] 3.5.2 React Hook Form 설정 (useForm)
+        - [x] 3.5.3 LocationSelector, ActivitySelector, ContactForm 통합
+        - [x] 3.5.4 폼 제출 핸들러 구현
+            - [x] 3.5.4.1 onSubmit 함수 작성
+            - [x] 3.5.4.2 API 호출 로직
+            - [x] 3.5.4.3 로딩 상태 관리
+            - [x] 3.5.4.4 성공/실패 메시지 표시
+            - [x] 3.5.4.5 테스트 코드 작성
+            - [x] 3.5.4.6 테스트 실행 및 검증 (`npm run test`)
+            - [x] 3.5.4.7 오류 수정 (필요 시)
+        - [x] 3.5.5 폼 초기화 기능
+            - [x] 3.5.5.1 테스트 코드 작성
+            - [x] 3.5.5.2 테스트 실행 및 검증 (`npm run test`)
+            - [x] 3.5.5.3 오류 수정 (필요 시)
 
     - [ ] 3.6 Supabase RPC Function 구현 (submit_report) (커밋 단위)
         - [ ] 3.6.1 마이그레이션 파일 생성: `supabase migration new submit_report_function`
