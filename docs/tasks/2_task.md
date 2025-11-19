@@ -141,12 +141,12 @@
 
   - [ ] 2.3 Supabase 타입 생성 및 클라이언트 설정 (커밋 단위)
 
-      - [ ] 2.3.1 TypeScript 타입 생성 (Remote DB 기준)
+      - [x] 2.3.1 TypeScript 타입 생성 (Remote DB 기준)
           - `npx supabase gen types typescript --project-id "PROJECT_ID" > src/types/database.types.ts`
           - *(CLI 설치 없이 npx 사용, 로그인 필요 시 `npx supabase login` 선행)*
-          - [ ] 2.3.1.1 테스트 코드 작성
-          - [ ] 2.3.1.2 테스트 실행 및 검증
-          - [ ] 2.3.1.3 오류 수정 (필요 시)
+          - [x] 2.3.1.1 테스트 코드 작성 (`scripts/genSupabaseTypes.mjs`, `scripts/checkSupabaseTypes.mjs`)
+          - [x] 2.3.1.2 테스트 실행 및 검증 (`node scripts/genSupabaseTypes.mjs`, `node scripts/checkSupabaseTypes.mjs`)
+          - [x] 2.3.1.3 오류 수정 (필요 시) - Supabase CLI가 Docker Desktop을 요구하여 실행 불가 → `pg`로 원격 DB 스키마를 직접 조회하여 타입 파일을 생성하도록 스크립트 수정
       - [ ] 2.3.2 `src/lib/supabase/client.ts` 생성 (Browser Client)
           - [ ] 2.3.2.1 테스트 코드 작성
           - [ ] 2.3.2.2 테스트 실행 및 검증
