@@ -30,13 +30,13 @@
 - [ ] 3.0 자율신고 폼 및 제출 기능 구현 (Push 단위)
     - [ ] 3.1 자율신고 폼 데이터 타입 및 스키마 정의 (커밋 단위)
         - [x] 3.1.1 `src/types/api.ts`에 `ReportRequest`, `ReportResponse` 인터페이스 추가
-        - [ ] 3.1.2 Zod 스키마 정의: `reportSchema`
-            - [ ] 3.1.2.1 location 검증 (name, coordinates)
-            - [ ] 3.1.2.2 activity 검증 (type, startTime, endTime, participants)
-            - [ ] 3.1.2.3 contact 검증 (name, phone, emergency)
-            - [ ] 3.1.2.4 테스트 코드 작성: Zod 스키마 검증 테스트
-            - [ ] 3.1.2.5 테스트 실행 및 검증
-            - [ ] 3.1.2.6 오류 수정 (필요 시)
+        - [x] 3.1.2 Zod 스키마 정의: `reportSchema`
+            - [x] 3.1.2.1 location 검증 (name, coordinates)
+            - [x] 3.1.2.2 activity 검증 (type, startTime, endTime, participants)
+            - [x] 3.1.2.3 contact 검증 (name, phone, emergency)
+            - [x] 3.1.2.4 테스트 코드 작성: Zod 스키마 검증 테스트
+            - [x] 3.1.2.5 테스트 실행 및 검증
+            - [x] 3.1.2.6 오류 수정 (필요 시)
         - [ ] 3.1.3 활동 타입 상수 정의: `ACTIVITY_TYPES = ['패들보드', '카약', '윈드서핑', ...]`
             - [ ] 3.1.3.1 테스트 코드 작성
             - [ ] 3.1.3.2 테스트 실행 및 검증
