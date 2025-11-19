@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
-import { createRouteHandlerSupabaseClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { parseReport } from '@/lib/utils/validators';
 import type { ReportRequest } from '@/types/api';
+import type { Database } from '@/types/database.types';
 
 export async function POST(request: Request) {
-  const supabase = createRouteHandlerSupabaseClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error: authError
@@ -36,6 +37,8 @@ export async function POST(request: Request) {
   }
 
   const { location, activity, contact, notes } = payload;
+  
+  // @ts-ignore - Supabase RPC 타입 추론 문제로 임시 무시
   const { data, error: rpcError } = await supabase.rpc('submit_report', {
     location_name: location.name,
     location_lat: location.coordinates.latitude,
@@ -48,7 +51,7 @@ export async function POST(request: Request) {
     contact_phone: contact.phone,
     emergency_contact: contact.emergencyContact,
     notes: notes ?? null
-  });
+  } as Database['public']['Functions']['submit_report']['Args']);
 
   if (rpcError) {
     return NextResponse.json(

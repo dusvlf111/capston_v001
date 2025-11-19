@@ -119,7 +119,7 @@ export type Database = {
           contact_name: string;
           contact_phone: string;
           emergency_contact: string;
-          notes?: string | null;
+          notes: string | null;
         };
         Returns: Json;
       };

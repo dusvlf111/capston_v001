@@ -1,6 +1,6 @@
 import Link from "next/link";
 import LogoutButton from "@/components/auth/LogoutButton";
-import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 const NAV_ITEMS = [
   { label: "홈", href: "/" },
@@ -10,7 +10,7 @@ const NAV_ITEMS = [
 ];
 
 export default async function Header() {
-  const supabase = createServerComponentSupabaseClient();
+  const supabase = await createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();

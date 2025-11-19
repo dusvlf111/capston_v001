@@ -47,7 +47,7 @@ describe('LocationSelector', () => {
   beforeEach(() => {
     getCurrentPositionMock.mockReset();
     Object.defineProperty(global.navigator, 'geolocation', {
-      value: { getCurrentPosition: getCurrentPositionMock } as Geolocation,
+      value: { getCurrentPosition: getCurrentPositionMock } as Partial<Geolocation>,
       configurable: true
     });
   });

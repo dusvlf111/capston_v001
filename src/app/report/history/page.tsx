@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { mapReportRowToResponse } from "@/lib/utils/reportTransform";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +16,7 @@ function formatDate(value: string) {
 }
 
 export default async function ReportHistoryPage() {
-  const supabase = createServerComponentSupabaseClient();
+  const supabase = await createClient();
   const {
     data: { session }
   } = await supabase.auth.getSession();

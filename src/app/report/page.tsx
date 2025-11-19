@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 import ReportForm from "@/components/forms/ReportForm";
-import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function ReportPage() {
-  const supabase = createServerComponentSupabaseClient();
+  const supabase = await createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();

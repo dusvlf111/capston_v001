@@ -18,10 +18,6 @@ export const metadata: Metadata = {
   title: "Capston Supabase PWA",
   description:
     "Next.js + Supabase starter with PWA support, ready for Vercel deployments.",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#0ea5e9" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
-  ],
   icons: {
     icon: "/icons/icon-192.png",
     shortcut: "/icons/icon-512.png",
@@ -33,6 +29,13 @@ export const metadata: Metadata = {
       },
     ],
   },
+};
+
+export const viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#0ea5e9" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
+  ],
 };
 
 export default function RootLayout({

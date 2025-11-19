@@ -2,12 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createSupabaseMiddlewareClient } from '@/lib/supabase/middleware';
 
 const AUTH_PATH = '/login';
-const PUBLIC_PATHS = ['/', '/login', '/signup'];
 const PROTECTED_PREFIXES = ['/dashboard', '/report', '/profile'];
-
-function isPublicPath(pathname: string) {
-  return PUBLIC_PATHS.includes(pathname);
-}
 
 function requiresAuth(pathname: string) {
   return PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
@@ -15,7 +10,11 @@ function requiresAuth(pathname: string) {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const { supabase, response } = createSupabaseMiddlewareClient(request);
+  const response = NextResponse.next();
+  const { supabase, response: supabaseResponse } = createSupabaseMiddlewareClient(
+    request,
+    response,
+  );
 
   const {
     data: { session },
@@ -31,16 +30,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  // refresh session cookies for authenticated requests
-  if (session) {
-    return response;
-  }
-
-  if (!isPublicPath(pathname)) {
-    return NextResponse.redirect(new URL('/', request.url));
-  }
-
-  return response;
+  return supabaseResponse;
 }
 
 export const config = {

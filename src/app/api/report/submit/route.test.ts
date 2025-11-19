@@ -6,7 +6,7 @@ const mockGetUser = vi.fn();
 const mockRpc = vi.fn();
 
 vi.mock('@/lib/supabase/server', () => ({
-  createRouteHandlerSupabaseClient: () => ({
+  createClient: () => ({
     auth: { getUser: mockGetUser },
     rpc: mockRpc
   })

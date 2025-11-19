@@ -125,7 +125,7 @@ export default function LocationSelector({ control, className }: LocationSelecto
       <div
         aria-label="지도 미리보기"
         data-testid="map-preview"
-        className="flex h-40 flex-col justify-between rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-4 text-slate-300"
+        className="flex h-40 flex-col justify-between rounded-2xl border border-slate-800 bg-linear-to-br from-slate-900 to-slate-950 p-4 text-slate-300"
       >
         {hasCoordinates ? (
           <>

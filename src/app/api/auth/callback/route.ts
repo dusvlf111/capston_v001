@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createRouteHandlerSupabaseClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 function buildRedirectUrl(requestUrl: string, redirectTo?: string) {
   const request = new URL(requestUrl);
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  const supabase = createRouteHandlerSupabaseClient();
+  const supabase = await createClient();
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {

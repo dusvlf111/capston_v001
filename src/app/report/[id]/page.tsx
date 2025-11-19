@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/types/database.types";
 import { mapReportRowToResponse } from "@/lib/utils/reportTransform";
 import {
@@ -57,7 +57,7 @@ const emergencyContacts = [
 ];
 
 export default async function ReportDetailPage({ params }: PageProps) {
-  const supabase = createServerComponentSupabaseClient();
+  const supabase = await createClient();
   const {
     data: { session }
   } = await supabase.auth.getSession();

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import ProfileForm from "@/components/profile/ProfileForm";
-import { createServerComponentSupabaseClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 type ProfileRecord = {
   id: string;
@@ -13,7 +13,7 @@ type ProfileRecord = {
 export const dynamic = "force-dynamic";
 
 export default async function ProfilePage() {
-  const supabase = createServerComponentSupabaseClient();
+  const supabase = await createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();

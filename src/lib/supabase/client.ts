@@ -1,6 +1,6 @@
 'use client';
 
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 import type { Database } from '@/types/database.types';
 
 function getBrowserEnv() {
@@ -16,9 +16,5 @@ function getBrowserEnv() {
 
 export function createBrowserSupabaseClient() {
   const { url, anonKey } = getBrowserEnv();
-  return createClientComponentClient<Database>({
-    supabaseUrl: url,
-    supabaseKey: anonKey,
-    isSingleton: true
-  });
+  return createBrowserClient<Database>(url, anonKey);
 }
