@@ -130,12 +130,12 @@
             - [ ] 1.8.4.3 테스트 실행 및 검증
             - [ ] 1.8.4.4 오류 수정 (필요 시)
 
-    - [ ] 1.9 Vercel 배포 설정 및 CI/CD 파이프라인 구축 (커밋 단위)
-        - [ ] 1.9.1 `vercel.json` 생성 (빌드 설정, 환경 변수 매핑)
+    - [x] 1.9 Vercel 배포 설정 및 CI/CD 파이프라인 구축 (커밋 단위)
+        - [x] 1.9.1 `vercel.json` 생성 (빌드 설정, 환경 변수 매핑)
         - [ ] 1.9.2 Vercel 프로젝트 생성 및 GitHub 저장소 연동
         - [ ] 1.9.3 Vercel Dashboard에서 환경 변수 설정 (Production, Preview, Development)
-        - [ ] 1.9.4 `.github/workflows/ci.yml` 생성 - GitHub Actions CI 설정
-        - [ ] 1.9.5 CI 단계: Lint, Type Check, Test 실행
+        - [x] 1.9.4 `.github/workflows/ci.yml` 생성 - GitHub Actions CI 설정
+        - [x] 1.9.5 CI 단계: Lint, Type Check, Test 실행
         - [ ] 1.9.6 테스트 코드 작성: CI 워크플로우 검증
         - [ ] 1.9.7 테스트 실행 및 검증: GitHub Actions 실행 확인
         - [ ] 1.9.8 오류 수정 (필요 시): CI 실패 원인 수정

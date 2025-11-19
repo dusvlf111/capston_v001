@@ -1,0 +1,14 @@
+{
+  "version": 3,
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_SUPABASE_URL": "${NEXT_PUBLIC_SUPABASE_URL}",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY": "${NEXT_PUBLIC_SUPABASE_ANON_KEY}"
+    }
+  },
+  "routes": [{
+    "src": "/(.*)",
+    "dest": "/$1",
+    "headers": {"cache-control": "public, s-maxage=1, stale-while-revalidate=59"}
+  }]
+}
