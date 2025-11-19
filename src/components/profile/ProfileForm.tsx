@@ -8,6 +8,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import type { Database } from "@/types/database.types";
 
 const schema = z.object({
   fullName: z.string().min(1, "이름을 입력해주세요."),
@@ -42,14 +43,16 @@ export default function ProfileForm({ profileId, userId, initialValues }: Profil
     setServerError(null);
     setSuccessMessage(null);
 
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        full_name: values.fullName,
-        phone: values.phone,
-        emergency_contact: values.emergencyContact,
-        updated_at: new Date().toISOString(),
-      })
+    const updateData = {
+      full_name: values.fullName,
+      phone: values.phone,
+      emergency_contact: values.emergencyContact,
+      updated_at: new Date().toISOString(),
+    };
+
+    const { error } = await (supabase
+      .from("profiles") as any)
+      .update(updateData)
       .eq("id", profileId)
       .eq("user_id", userId);
 
