@@ -29,7 +29,7 @@
 
 - [ ] 3.0 자율신고 폼 및 제출 기능 구현 (Push 단위)
     - [ ] 3.1 자율신고 폼 데이터 타입 및 스키마 정의 (커밋 단위)
-        - [ ] 3.1.1 `src/types/api.ts`에 `ReportRequest`, `ReportResponse` 인터페이스 추가
+        - [x] 3.1.1 `src/types/api.ts`에 `ReportRequest`, `ReportResponse` 인터페이스 추가
         - [ ] 3.1.2 Zod 스키마 정의: `reportSchema`
             - [ ] 3.1.2.1 location 검증 (name, coordinates)
             - [ ] 3.1.2.2 activity 검증 (type, startTime, endTime, participants)
