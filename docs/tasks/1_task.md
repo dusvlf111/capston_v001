@@ -28,7 +28,7 @@
 
 - [ ] 1.0 Next.js 14 프로젝트 초기화 및 기본 설정 (Push 단위)
     - [ ] 1.1 Next.js 14 프로젝트 생성 및 기본 패키지 설치 (커밋 단위)
-        - [ ] 1.1.1 `npx create-next-app@latest` 실행 (App Router, TypeScript, Tailwind CSS 옵션 선택)
+        - [x] 1.1.1 `npx create-next-app@latest` 실행 (App Router, TypeScript, Tailwind CSS 옵션 선택)
         - [ ] 1.1.2 필수 패키지 설치: `@supabase/supabase-js`, `@supabase/auth-helpers-nextjs`, `react-query`, `react-hook-form`, `zod`
         - [ ] 1.1.3 개발 도구 설치: `@playwright/test`, `jest`, `@testing-library/react`, `eslint`, `prettier`
         - [ ] 1.1.4 PWA 패키지 설치: `next-pwa`, `workbox-*`
@@ -73,59 +73,59 @@
         - [ ] 1.5.8 오류 수정 (필요 시): 누락된 폴더 생성
 
     - [ ] 1.6 기본 레이아웃 및 컴포넌트 구조 생성 (커밋 단위)
-        - [ ] 1.6.1 `src/app/layout.tsx` 수정
-            - [ ] 1.6.1.1 메타데이터 설정 (title, description, viewport)
-            - [ ] 1.6.1.2 폰트 설정 (Pretendard 또는 Noto Sans KR)
-            - [ ] 1.6.1.3 기본 HTML 구조 및 글로벌 스타일 적용
+        - [x] 1.6.1 `src/app/layout.tsx` 수정
+            - [x] 1.6.1.1 메타데이터 설정 (title, description, viewport)
+            - [x] 1.6.1.2 폰트 설정 (Pretendard 또는 Noto Sans KR)
+            - [x] 1.6.1.3 기본 HTML 구조 및 글로벌 스타일 적용
             - [ ] 1.6.1.4 테스트 코드 작성: 레이아웃 렌더링 테스트
             - [ ] 1.6.1.5 테스트 실행 및 검증: 메타데이터 올바르게 설정되었는지 확인
             - [ ] 1.6.1.6 오류 수정 (필요 시): 폰트 로딩 오류 수정
-        - [ ] 1.6.2 `src/components/layout/Header.tsx` 생성
-            - [ ] 1.6.2.1 헤더 컴포넌트 기본 구조 (로고, 네비게이션, 로그인 버튼)
-            - [ ] 1.6.2.2 반응형 디자인 적용 (모바일 햄버거 메뉴)
+        - [x] 1.6.2 `src/components/layout/Header.tsx` 생성
+            - [x] 1.6.2.1 헤더 컴포넌트 기본 구조 (로고, 네비게이션, 로그인 버튼)
+            - [x] 1.6.2.2 반응형 디자인 적용 (모바일 햄버거 메뉴)
             - [ ] 1.6.2.3 테스트 코드 작성: 헤더 렌더링 및 반응형 테스트
             - [ ] 1.6.2.4 테스트 실행 및 검증
             - [ ] 1.6.2.5 오류 수정 (필요 시)
-        - [ ] 1.6.3 `src/components/layout/Footer.tsx` 생성
-            - [ ] 1.6.3.1 푸터 컴포넌트 (저작권, 연락처, 소셜 링크)
+        - [x] 1.6.3 `src/components/layout/Footer.tsx` 생성
+            - [x] 1.6.3.1 푸터 컴포넌트 (저작권, 연락처, 소셜 링크)
             - [ ] 1.6.3.2 테스트 코드 작성
             - [ ] 1.6.3.3 테스트 실행 및 검증
             - [ ] 1.6.3.4 오류 수정 (필요 시)
-        - [ ] 1.6.4 `src/app/layout.tsx`에 Header, Footer 통합
+        - [x] 1.6.4 `src/app/layout.tsx`에 Header, Footer 통합
             - [ ] 1.6.4.1 테스트 코드 작성: 통합 레이아웃 렌더링 테스트
             - [ ] 1.6.4.2 테스트 실행 및 검증
             - [ ] 1.6.4.3 오류 수정 (필요 시)
 
-    - [ ] 1.7 홈페이지 기본 UI 구현 (커밋 단위)
-        - [ ] 1.7.1 `src/app/page.tsx` 수정 - 메인 페이지 구조
-        - [ ] 1.7.2 히어로 섹션 추가 (프로젝트 소개, CTA 버튼)
-        - [ ] 1.7.3 서비스 설명 섹션 (주요 기능 3가지 카드 형식)
+        - [x] 1.7 홈페이지 기본 UI 구현 (커밋 단위)
+            - [x] 1.7.1 `src/app/page.tsx` 수정 - 메인 페이지 구조
+            - [x] 1.7.2 히어로 섹션 추가 (프로젝트 소개, CTA 버튼)
+            - [x] 1.7.3 서비스 설명 섹션 (주요 기능 3가지 카드 형식)
         - [ ] 1.7.4 테스트 코드 작성: 홈페이지 렌더링 및 섹션 존재 확인
         - [ ] 1.7.5 테스트 실행 및 검증
         - [ ] 1.7.6 오류 수정 (필요 시)
 
     - [ ] 1.8 공통 UI 컴포넌트 생성 (커밋 단위)
-        - [ ] 1.8.1 `src/components/ui/Button.tsx` 생성
-            - [ ] 1.8.1.1 버튼 variants (primary, secondary, danger, ghost) 구현
-            - [ ] 1.8.1.2 크기 옵션 (sm, md, lg)
-            - [ ] 1.8.1.3 로딩 상태 처리
+        - [x] 1.8.1 `src/components/ui/Button.tsx` 생성
+            - [x] 1.8.1.1 버튼 variants (primary, secondary, danger, ghost) 구현
+            - [x] 1.8.1.2 크기 옵션 (sm, md, lg)
+            - [x] 1.8.1.3 로딩 상태 처리
             - [ ] 1.8.1.4 테스트 코드 작성: 버튼 variants 및 props 테스트
             - [ ] 1.8.1.5 테스트 실행 및 검증
             - [ ] 1.8.1.6 오류 수정 (필요 시)
-        - [ ] 1.8.2 `src/components/ui/Input.tsx` 생성
-            - [ ] 1.8.2.1 텍스트 인풋 기본 구현
-            - [ ] 1.8.2.2 에러 상태 표시
-            - [ ] 1.8.2.3 레이블 및 도움말 텍스트 지원
+        - [x] 1.8.2 `src/components/ui/Input.tsx` 생성
+            - [x] 1.8.2.1 텍스트 인풋 기본 구현
+            - [x] 1.8.2.2 에러 상태 표시
+            - [x] 1.8.2.3 레이블 및 도움말 텍스트 지원
             - [ ] 1.8.2.4 테스트 코드 작성
             - [ ] 1.8.2.5 테스트 실행 및 검증
             - [ ] 1.8.2.6 오류 수정 (필요 시)
-        - [ ] 1.8.3 `src/components/ui/Loading.tsx` 생성
-            - [ ] 1.8.3.1 스피너 컴포넌트
+        - [x] 1.8.3 `src/components/ui/Loading.tsx` 생성
+            - [x] 1.8.3.1 스피너 컴포넌트
             - [ ] 1.8.3.2 테스트 코드 작성
             - [ ] 1.8.3.3 테스트 실행 및 검증
             - [ ] 1.8.3.4 오류 수정 (필요 시)
-        - [ ] 1.8.4 `src/components/ui/Alert.tsx` 생성
-            - [ ] 1.8.4.1 알림 컴포넌트 (success, warning, error, info)
+        - [x] 1.8.4 `src/components/ui/Alert.tsx` 생성
+            - [x] 1.8.4.1 알림 컴포넌트 (success, warning, error, info)
             - [ ] 1.8.4.2 테스트 코드 작성
             - [ ] 1.8.4.3 테스트 실행 및 검증
             - [ ] 1.8.4.4 오류 수정 (필요 시)
