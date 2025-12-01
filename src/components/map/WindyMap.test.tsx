@@ -170,4 +170,40 @@ describe('WindyMap', () => {
             expect(mockTileLayer.addTo).toHaveBeenCalledTimes(2);
         });
     });
+
+    it('renders map container with correct CSS classes', () => {
+        const { container } = render(<WindyMap />);
+
+        const outerDiv = container.firstChild as HTMLElement;
+        expect(outerDiv).toHaveClass('relative', 'w-full', 'h-screen');
+    });
+
+    it('renders control panel with correct positioning', () => {
+        const { container } = render(<WindyMap />);
+
+        const controlPanel = container.querySelector('.absolute.top-4.right-4');
+        expect(controlPanel).toBeInTheDocument();
+        expect(controlPanel).toHaveClass('z-[1000]', 'bg-white', 'p-2', 'rounded', 'shadow');
+    });
+
+    it('displays correct label text for OSM toggle', () => {
+        const { getByText } = render(<WindyMap />);
+
+        expect(getByText('Show OpenStreetMap')).toBeInTheDocument();
+    });
+
+    it('checkbox has correct styling classes', () => {
+        const { getByRole } = render(<WindyMap />);
+
+        const checkbox = getByRole('checkbox');
+        expect(checkbox).toHaveClass('form-checkbox', 'h-5', 'w-5', 'text-blue-600');
+    });
+
+    it('renders map ref div with correct structure', () => {
+        const { container } = render(<WindyMap />);
+
+        const mapRefDiv = container.querySelector('.w-full.h-full');
+        expect(mapRefDiv).toBeInTheDocument();
+        expect(mapRefDiv?.parentElement).toHaveClass('relative', 'w-full', 'h-screen');
+    });
 });
