@@ -118,6 +118,7 @@ export default function ContactForm({ control, className }: ContactFormProps) {
           error={phoneError?.message}
           {...phoneField}
           value={getSafeValue(phoneField.value)}
+          data-testid="contact-phone"
         />
       </div>
 
@@ -127,6 +128,7 @@ export default function ContactForm({ control, className }: ContactFormProps) {
         error={emergencyError?.message}
         {...emergencyField}
         value={getSafeValue(emergencyField.value)}
+        data-testid="contact-emergency"
       />
 
       {authError && (

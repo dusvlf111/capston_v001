@@ -50,8 +50,8 @@ test.describe('Report Submission Flow', () => {
 
         // Contact
         await page.getByLabel('신고자 이름').fill('Tester');
-        await page.getByLabel('연락처').fill('010-0000-0000');
-        await page.getByLabel('비상 연락처').fill('010-1111-1111');
+        await page.getByTestId('contact-phone').fill('010-0000-0000');
+        await page.getByTestId('contact-emergency').fill('010-1111-1111');
 
         // 4. Submit
         await page.getByRole('button', { name: '신고 제출' }).click();
