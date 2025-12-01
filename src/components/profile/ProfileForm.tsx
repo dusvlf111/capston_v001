@@ -10,10 +10,12 @@ import Alert from "@/components/ui/Alert";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import type { Database } from "@/types/database.types";
 
+import { phonePattern } from "@/lib/utils/validators";
+
 const schema = z.object({
   fullName: z.string().min(1, "이름을 입력해주세요."),
-  phone: z.string().min(8, "연락처를 입력해주세요."),
-  emergencyContact: z.string().min(8, "비상 연락처를 입력해주세요."),
+  phone: z.string().regex(phonePattern, "연락처는 010-0000-0000 형식이어야 합니다."),
+  emergencyContact: z.string().regex(phonePattern, "비상 연락처는 010-0000-0000 형식이어야 합니다."),
 });
 
 export type ProfileFormValues = z.infer<typeof schema>;
@@ -37,6 +39,7 @@ export default function ProfileForm({ profileId, userId, initialValues }: Profil
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(schema),
     defaultValues: initialValues,
+    mode: "onBlur",
   });
 
   const onSubmit = handleSubmit(async (values) => {

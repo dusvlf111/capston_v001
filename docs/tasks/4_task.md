@@ -140,36 +140,6 @@ OpenStreetMap과 Leaflet 라이브러리로 변경한 Task 4 문서입니다. Le
     - [ ] 4.9 신고 결과 페이지에 지도 통합 (커밋 단위)
         - [ ] 4.9.1 `src/app/report/[id]/page.tsx` 수정
         - [ ] 4.9.2 MapView 컴포넌트 dynamic import로 추가
-        - [ ] 4.9.3 신고 위치에 Marker 표시
-        - [ ] 4.9.4 주변 안전구역 Polygon 오버레이 표시
-        - [ ] 4.9.5 테스트 코드 작성: 지도 렌더링 확인
-        - [ ] 4.9.6 테스트 실행 및 검증
-        - [ ] 4.9.7 오류 수정 (필요 시)
-
-    - [ ] 4.10 submit_report RPC 함수 업데이트 (안전도 분석 통합) (커밋 단위)
-        - [ ] 4.10.1 `submit_report` 함수 수정
-        - [ ] 4.10.2 Edge Function 호출 추가
-        - [ ] 4.10.3 analysis_data JSONB에 안전도 분석 결과 저장
-        - [ ] 4.10.4 테스트 코드 작성
-        - [ ] 4.10.5 테스트 실행 및 검증
-        - [ ] 4.10.6 오류 수정 (필요 시)
-
----
-
-## 완료 조건
-- [ ] OpenStreetMap + Leaflet 연동
-- [ ] 메인 지도 컴포넌트 구현 (dynamic import로 SSR 회피)
-- [ ] 마커 및 Polygon 오버레이 시스템 구축
-- [ ] 안전구역 데이터 표시
-- [ ] 안전도 분석 Edge Function 배포
-- [ ] 안전도 분석 결과 UI 렌더링
-- [ ] 신고 결과 페이지에 지도 통합
-
-***
-
-## 주요 변경사항
-
-### Kakao Map → OpenStreetMap + Leaflet
 **라이브러리**: `leaflet`, `react-leaflet`, `@types/leaflet` 설치 필요[1]
 
 **TileLayer**: OpenStreetMap 타일 서버 사용

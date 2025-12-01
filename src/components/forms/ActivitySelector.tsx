@@ -117,8 +117,8 @@ export default function ActivitySelector({ control, className }: ActivitySelecto
             const nextValue = event.target.value;
             setStartInputValue(nextValue);
 
-            if (nextValue === "") {
-              startTimeField.onChange(undefined);
+            if (!nextValue) {
+              startTimeField.onChange(""); // Empty string to trigger 'required' validation
               return;
             }
 
@@ -139,8 +139,8 @@ export default function ActivitySelector({ control, className }: ActivitySelecto
             const nextValue = event.target.value;
             setEndInputValue(nextValue);
 
-            if (nextValue === "") {
-              endTimeField.onChange(undefined);
+            if (!nextValue) {
+              endTimeField.onChange(""); // Empty string to trigger 'required' validation
               return;
             }
 

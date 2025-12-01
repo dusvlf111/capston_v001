@@ -40,6 +40,12 @@ export default async function Header() {
                   {userEmail}
                 </span>
               )}
+              <Link
+                href="/profile"
+                className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:bg-slate-700 hover:text-white"
+              >
+                프로필
+              </Link>
               <LogoutButton />
             </>
           ) : (

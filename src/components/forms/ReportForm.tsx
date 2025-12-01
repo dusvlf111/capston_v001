@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import LocationSelector from "@/components/forms/LocationSelector";
@@ -39,6 +40,7 @@ const buildDefaultValues = (): ReportSchema => ({
 });
 
 export default function ReportForm({ className }: { className?: string }) {
+  const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const [lastReport, setLastReport] = useState<ReportResponse | null>(null);
   const defaultValues = useMemo(() => buildDefaultValues(), []);
@@ -69,6 +71,7 @@ export default function ReportForm({ className }: { className?: string }) {
       });
 
       const payload = (await response.json().catch(() => null)) as ReportResponse | { message?: string } | null;
+      console.log("Report submission response:", payload);
 
       if (!response.ok) {
         const message = payload && "message" in payload ? payload.message : undefined;
@@ -77,10 +80,12 @@ export default function ReportForm({ className }: { className?: string }) {
 
       if (payload && "id" in payload) {
         setLastReport(payload as ReportResponse);
+        router.push(`/report/result/${payload.id}`);
       }
 
       reset(values);
     } catch (error) {
+      console.error("Report submission error:", error);
       setServerError(error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.");
     }
   });

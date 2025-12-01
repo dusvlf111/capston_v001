@@ -5,6 +5,7 @@ import { Plus, Trash2, UserPlus } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { cn } from "@/lib/utils/cn";
+import { formatPhoneNumber } from "@/lib/utils/formatters";
 import type { ReportSchema } from "@/lib/utils/validators";
 
 interface CompanionFormProps {
@@ -68,14 +69,22 @@ export default function CompanionForm({ className }: CompanionFormProps) {
                                 label="연락처"
                                 placeholder="010-0000-0000"
                                 error={errors.companions?.[index]?.phone?.message}
-                                {...register(`companions.${index}.phone`)}
+                                {...register(`companions.${index}.phone`, {
+                                    onChange: (e) => {
+                                        e.target.value = formatPhoneNumber(e.target.value);
+                                    }
+                                })}
                             />
                             <div className="sm:col-span-2">
                                 <Input
                                     label="비상 연락처"
                                     placeholder="010-0000-0000"
                                     error={errors.companions?.[index]?.emergencyContact?.message}
-                                    {...register(`companions.${index}.emergencyContact`)}
+                                    {...register(`companions.${index}.emergencyContact`, {
+                                        onChange: (e) => {
+                                            e.target.value = formatPhoneNumber(e.target.value);
+                                        }
+                                    })}
                                 />
                             </div>
                         </div>

@@ -45,7 +45,7 @@ export default function LocationSelector({ control, className }: LocationSelecto
   } = useController({
     name: "location.coordinates.latitude",
     control,
-    defaultValue: undefined as unknown as number
+    defaultValue: undefined
   });
 
   const {
@@ -54,7 +54,7 @@ export default function LocationSelector({ control, className }: LocationSelecto
   } = useController({
     name: "location.coordinates.longitude",
     control,
-    defaultValue: undefined as unknown as number
+    defaultValue: undefined
   });
 
   const hasCoordinates = useMemo(() => {

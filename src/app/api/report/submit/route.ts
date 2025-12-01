@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { parseReport } from '@/lib/utils/validators';
+import { analyzeSafety } from '@/lib/services/safetyService';
 import type { ReportRequest } from '@/types/api';
 import type { Database } from '@/types/database.types';
 
@@ -38,7 +39,11 @@ export async function POST(request: Request) {
 
   const { location, activity, contact, notes, companions } = payload;
 
-  // @ts-ignore - Supabase RPC 타입 추론 문제로 임시 무시
+  // 1. Perform Safety Analysis
+  const safetyAnalysis = await analyzeSafety(payload);
+  console.log("Safety Analysis Result:", safetyAnalysis);
+
+  // 2. Submit Report with Analysis Data
   const { data, error: rpcError } = await supabase.rpc('submit_report', {
     location_name: location.name,
     location_lat: location.coordinates.latitude,
@@ -51,15 +56,18 @@ export async function POST(request: Request) {
     contact_phone: contact.phone,
     emergency_contact: contact.emergencyContact,
     notes: notes ?? null,
-    companions: companions ?? []
-  } as Database['public']['Functions']['submit_report']['Args']);
+    companions: companions ?? [],
+    analysis_data: safetyAnalysis
+  } as any);
 
   if (rpcError) {
+    console.error("RPC Error:", rpcError);
     return NextResponse.json(
       { message: '신고 저장에 실패했습니다.', details: rpcError.message },
       { status: 500 }
     );
   }
 
+  console.log("RPC Success Data:", data);
   return NextResponse.json(data, { status: 201 });
 }

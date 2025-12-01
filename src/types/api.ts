@@ -64,4 +64,18 @@ export interface ReportResponse {
   contact: ContactPayload;
   notes?: string;
   analysis?: Record<string, unknown>;
+  safety_analysis?: SafetyAnalysisResult;
+}
+
+export interface SafetyRiskFactor {
+  type: 'WEATHER' | 'RESTRICTED_AREA' | 'TRAFFIC' | 'OTHER';
+  severity: 'LOW' | 'MEDIUM' | 'HIGH';
+  message: string;
+}
+
+export interface SafetyAnalysisResult {
+  score: number;
+  level: 'GREEN' | 'YELLOW' | 'RED';
+  risk_factors: SafetyRiskFactor[];
+  recommendations: string[];
 }

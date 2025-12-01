@@ -22,8 +22,8 @@ const activityTypeEnum = z.enum(
 const activitySchema = z
   .object({
     type: activityTypeEnum,
-    startTime: z.string().datetime({ message: '시작 시간을 ISO 형식으로 입력하세요.' }),
-    endTime: z.string().datetime({ message: '종료 시간을 ISO 형식으로 입력하세요.' }),
+    startTime: z.string().min(1, '시작 시간을 입력하세요.').datetime({ message: '시작 시간을 ISO 형식으로 입력하세요.' }),
+    endTime: z.string().min(1, '종료 시간을 입력하세요.').datetime({ message: '종료 시간을 ISO 형식으로 입력하세요.' }),
     participants: z
       .number()
       .int('참가자 수는 정수여야 합니다.')
@@ -38,7 +38,7 @@ const activitySchema = z
     }
   );
 
-const phonePattern = /^010-\d{4}-\d{4}$/;
+export const phonePattern = /^010-\d{4}-\d{4}$/;
 
 const contactSchema = z.object({
   name: z.string().min(2, '이름은 2자 이상이어야 합니다.'),

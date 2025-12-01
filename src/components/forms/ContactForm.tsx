@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import type { ReportSchema } from "@/lib/utils/validators";
 import { cn } from "@/lib/utils/cn";
+import { formatPhoneNumber } from "@/lib/utils/formatters";
 import { useAuth } from "@/hooks/useAuth";
 
 interface ContactFormProps {
@@ -117,6 +118,9 @@ export default function ContactForm({ control, className }: ContactFormProps) {
           placeholder="010-0000-0000"
           error={phoneError?.message}
           {...phoneField}
+          onChange={(e) => {
+            phoneField.onChange(formatPhoneNumber(e.target.value));
+          }}
           value={getSafeValue(phoneField.value)}
           data-testid="contact-phone"
         />
@@ -127,6 +131,9 @@ export default function ContactForm({ control, className }: ContactFormProps) {
         placeholder="010-0000-0000"
         error={emergencyError?.message}
         {...emergencyField}
+        onChange={(e) => {
+          emergencyField.onChange(formatPhoneNumber(e.target.value));
+        }}
         value={getSafeValue(emergencyField.value)}
         data-testid="contact-emergency"
       />
