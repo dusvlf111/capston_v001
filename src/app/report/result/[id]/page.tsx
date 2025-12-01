@@ -4,23 +4,53 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Button from '@/components/ui/Button';
 
+import { fetchMarineWeather } from '@/lib/services/weatherService';
+import { fetchWeatherWarnings, fetchCoastGuardStations } from '@/lib/services/publicDataService';
+import { generateSafetyReport } from '@/lib/services/aiService';
+import { analyzeSafety } from '@/lib/services/safetyService';
+
 export default async function ReportResultPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     const supabase = await createClient();
-    const { data: report } = await supabase
+    const { data: reportData } = await supabase
         .from('reports')
         .select('*')
         .eq('id', id)
         .single();
 
+    const report = reportData as any;
+
     if (!report) {
         notFound();
     }
 
-    const payload = report.location_data as any;
-    const safetyAnalysis = payload.safety_analysis;
+    const payload = report.location_data;
+    // Use stored analysis or calculate it on the fly if missing
+    const safetyAnalysis = payload.safety_analysis || await analyzeSafety({
+        location: payload.location,
+        activity: payload.activity,
+        contact: payload.contact,
+        companions: payload.companions,
+        notes: payload.notes
+    });
     const location = payload.location;
     const activity = payload.activity;
+
+    // Fetch external data for AI report
+    // We fetch stations with coordinates to get distance
+    const [weatherData, warnings, stations] = await Promise.all([
+        fetchMarineWeather(location.coordinates.latitude, location.coordinates.longitude),
+        fetchWeatherWarnings(), // Default to national/Busan for now
+        fetchCoastGuardStations(location.coordinates.latitude, location.coordinates.longitude)
+    ]);
+
+    // Generate AI Safety Report
+    const aiReport = await generateSafetyReport(
+        { location, activity, contact: payload.contact, companions: payload.companions } as any,
+        weatherData,
+        warnings,
+        stations
+    );
 
     // Format report number if available, otherwise use ID prefix
     const reportNo = report.report_no ? `RPT-${report.report_no}` : id.slice(0, 8);
@@ -64,7 +94,12 @@ export default async function ReportResultPage({ params }: { params: Promise<{ i
             </div>
 
             {safetyAnalysis ? (
-                <SafetyAnalysis result={safetyAnalysis} />
+                <SafetyAnalysis
+                    result={safetyAnalysis}
+                    aiReport={aiReport}
+                    weatherData={weatherData}
+                    warnings={warnings}
+                />
             ) : (
                 <div className="p-4 bg-gray-50 rounded-xl text-center text-gray-500">
                     안전 분석 정보가 없습니다.

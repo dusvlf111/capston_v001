@@ -3,12 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 
-declare global {
-    interface Window {
-        windyInit: (options: any, callback: (windyAPI: any) => void) => void;
-        L: any;
-    }
-}
+
 
 type MapLayer = 'wind' | 'temp' | 'clouds' | 'rain' | 'waves';
 
@@ -20,12 +15,14 @@ interface SearchResult {
 
 export default function WindyMap() {
     const [showOSM, setShowOSM] = useState(false);
+    const [showKHOA, setShowKHOA] = useState(false);
     const [selectedLayer, setSelectedLayer] = useState<MapLayer>('wind');
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const [isSearching, setIsSearching] = useState(false);
 
     const osmLayerRef = useRef<any>(null);
+    const khoaLayerRef = useRef<any>(null);
     const mapInstanceRef = useRef<any>(null);
     const windyAPIRef = useRef<any>(null);
     const markerRef = useRef<any>(null);
@@ -105,6 +102,32 @@ export default function WindyMap() {
             }
         }
     }, [showOSM]);
+
+    // Toggle KHOA Layer
+    useEffect(() => {
+        if (!mapInstanceRef.current || !window.L) return;
+
+        if (showKHOA) {
+            if (!khoaLayerRef.current) {
+                const kjoKey = process.env.NEXT_PUBLIC_KHOA_API_KEY || 'A6070E7933FD93AA0E7216652';
+                // Note: KHOA API might require HTTP or specific referrers. 
+                // Using the URL pattern provided in the guide.
+                const seaMapUrl = `http://www.khoa.go.kr/oceanmap/otile/tms/kov/{z}/{y}/{x}.png?apikey=${kjoKey}`;
+
+                khoaLayerRef.current = window.L.tileLayer(seaMapUrl, {
+                    maxZoom: 18,
+                    opacity: 0.6,
+                    zIndex: 100,
+                    attribution: '© National Hydrographic and Oceanographic Agency'
+                });
+            }
+            khoaLayerRef.current.addTo(mapInstanceRef.current);
+        } else {
+            if (khoaLayerRef.current && mapInstanceRef.current.hasLayer(khoaLayerRef.current)) {
+                mapInstanceRef.current.removeLayer(khoaLayerRef.current);
+            }
+        }
+    }, [showKHOA]);
 
     // Change Windy Layer
     useEffect(() => {
@@ -202,7 +225,18 @@ export default function WindyMap() {
             {/* Windy map container - ID required by Windy API */}
             <div id="windy" className="w-full h-full" />
 
-            {/* Controls removed as per user request */}
+            {/* Layer Controls */}
+            <div className="absolute bottom-8 right-4 z-[1000] flex flex-col gap-2">
+                <button
+                    onClick={() => setShowKHOA(!showKHOA)}
+                    className={`px-4 py-2 rounded-lg shadow-md text-sm font-medium transition-colors ${showKHOA
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white text-gray-700 hover:bg-gray-50'
+                        }`}
+                >
+                    🌊 바다지도 {showKHOA ? 'ON' : 'OFF'}
+                </button>
+            </div>
         </div>
     );
 }

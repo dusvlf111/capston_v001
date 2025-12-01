@@ -19,7 +19,7 @@ export type WindyInitCallback = (windyAPI: WindyAPI) => void;
 
 declare global {
     interface Window {
-        windyInit: (options: WindyOptions, callback: WindyInitCallback) => void;
+        windyInit?: (options: WindyOptions, callback: WindyInitCallback) => void;
         L: any; // Leaflet global
     }
 }
