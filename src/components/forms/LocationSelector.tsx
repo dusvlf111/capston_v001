@@ -32,8 +32,7 @@ export default function LocationSelector({ control, className }: LocationSelecto
 
   const mapRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
-  const windyAPIRef = useRef<any>(null);
-  const isWindyInitializedRef = useRef(false);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
 
   const {
     field: locationNameField,
@@ -62,76 +61,94 @@ export default function LocationSelector({ control, className }: LocationSelecto
     return typeof latitudeField.value === "number" && typeof longitudeField.value === "number";
   }, [latitudeField.value, longitudeField.value]);
 
-  // Initialize Windy Map
+  // Initialize Leaflet Map directly (without Windy for report page)
   useEffect(() => {
-    if (typeof window === "undefined" || !hasCoordinates || isWindyInitializedRef.current) return;
+    if (typeof window === "undefined" || !hasCoordinates || !mapContainerRef.current) return;
 
-    const existingScript = document.querySelector('script[src="https://api.windy.com/assets/map-forecast/libBoot.js"]');
-
-    const initializeMap = () => {
-      if (!window.windyInit || isWindyInitializedRef.current) return;
-
-      const mapContainer = document.getElementById('windy-report-map');
-      if (!mapContainer) {
-        setTimeout(initializeMap, 100);
-        return;
-      }
-
-      const options = {
-        key: process.env.NEXT_PUBLIC_WINDY_API_KEY || 'Vn7KpbPckxNX0xdXrX3FLmFmevs8aL8C',
-        lat: latitudeField.value,
-        lon: longitudeField.value,
-        zoom: 13,
-      };
-
-      window.windyInit(options, (windyAPI: any) => {
-        windyAPIRef.current = windyAPI;
-        mapRef.current = windyAPI.map;
-        isWindyInitializedRef.current = true;
-
-        // Add marker
-        if (window.L && mapRef.current) {
-          markerRef.current = window.L.marker([latitudeField.value, longitudeField.value])
-            .addTo(mapRef.current)
-            .bindPopup(locationNameField.value || '활동 위치');
-        }
-      });
-    };
-
-    if (existingScript && window.windyInit) {
-      initializeMap();
-      return;
+    // Load Leaflet CSS if not already loaded
+    if (!document.querySelector('link[href*="leaflet.css"]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
     }
 
-    if (!existingScript) {
+    // Load Leaflet JS if not already loaded
+    if (!window.L) {
       const script = document.createElement('script');
-      script.src = 'https://api.windy.com/assets/map-forecast/libBoot.js';
-      script.async = true;
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
       script.onload = () => {
         initializeMap();
       };
-      document.body.appendChild(script);
+      document.head.appendChild(script);
+    } else {
+      initializeMap();
     }
+
+    function initializeMap() {
+      if (!window.L || mapRef.current || !hasCoordinates) return;
+
+      try {
+        // Create map
+        const map = window.L.map('report-leaflet-map', {
+          center: [latitudeField.value, longitudeField.value],
+          zoom: 13,
+          zoomControl: true,
+        });
+
+        // Add OpenStreetMap tile layer
+        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19,
+        }).addTo(map);
+
+        mapRef.current = map;
+
+        // Add marker
+        const marker = window.L.marker([latitudeField.value, longitudeField.value])
+          .addTo(map)
+          .bindPopup(locationNameField.value || '활동 위치')
+          .openPopup();
+
+        markerRef.current = marker;
+      } catch (error) {
+        console.error('Failed to initialize map:', error);
+        setGeoError('지도를 로드하는 중 오류가 발생했습니다.');
+      }
+    }
+
+    return () => {
+      // Cleanup map on unmount
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+        markerRef.current = null;
+      }
+    };
   }, [hasCoordinates, latitudeField.value, longitudeField.value, locationNameField.value]);
 
   // Update map when coordinates change
   useEffect(() => {
-    if (!mapRef.current || !hasCoordinates) return;
+    if (!mapRef.current || !hasCoordinates || !window.L) return;
 
-    // Update map center
-    mapRef.current.setView([latitudeField.value, longitudeField.value], 13);
+    try {
+      // Update map center
+      mapRef.current.setView([latitudeField.value, longitudeField.value], 13);
 
-    // Remove old marker
-    if (markerRef.current && mapRef.current.hasLayer(markerRef.current)) {
-      mapRef.current.removeLayer(markerRef.current);
-    }
+      // Remove old marker
+      if (markerRef.current) {
+        markerRef.current.remove();
+      }
 
-    // Add new marker
-    if (window.L) {
-      markerRef.current = window.L.marker([latitudeField.value, longitudeField.value])
+      // Add new marker
+      const marker = window.L.marker([latitudeField.value, longitudeField.value])
         .addTo(mapRef.current)
         .bindPopup(locationNameField.value || '활동 위치')
         .openPopup();
+
+      markerRef.current = marker;
+    } catch (error) {
+      console.error('Failed to update map:', error);
     }
   }, [latitudeField.value, longitudeField.value, locationNameField.value, hasCoordinates]);
 
@@ -307,7 +324,11 @@ export default function LocationSelector({ control, className }: LocationSelecto
         )}
       >
         {hasCoordinates ? (
-          <div id="windy-report-map" className="w-full h-full" />
+          <div
+            id="report-leaflet-map"
+            ref={mapContainerRef}
+            className="w-full h-full"
+          />
         ) : (
           <p className="text-sm text-slate-500">위치를 검색하거나 입력하면 지도가 표시됩니다.</p>
         )}
