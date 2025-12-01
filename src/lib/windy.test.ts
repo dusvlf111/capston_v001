@@ -14,17 +14,17 @@ describe('Windy API Library', () => {
 
     describe('getWindyApiKey', () => {
         it('returns API key from environment', () => {
-            process.env.NEXT_PUBLIC_WINDY_API_KEY = 'test-key-123';
+            process.env.NEXT_PUBLIC_WINDY_MAP_KEY = 'test-key-123';
             const key = getWindyApiKey();
             expect(key).toBe('test-key-123');
         });
 
         it('returns empty string if API key is not set', () => {
-            delete process.env.NEXT_PUBLIC_WINDY_API_KEY;
+            delete process.env.NEXT_PUBLIC_WINDY_MAP_KEY;
             const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
             const key = getWindyApiKey();
             expect(key).toBe('');
-            expect(consoleSpy).toHaveBeenCalledWith('NEXT_PUBLIC_WINDY_API_KEY is not set');
+            expect(consoleSpy).toHaveBeenCalledWith('NEXT_PUBLIC_WINDY_MAP_KEY is not set');
         });
     });
 

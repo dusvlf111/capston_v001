@@ -73,9 +73,18 @@ export interface SafetyRiskFactor {
   message: string;
 }
 
+export interface SafetyScoreBreakdown {
+  weather: number;
+  sea: number;
+  activity: number;
+  response: number;
+}
+
 export interface SafetyAnalysisResult {
   score: number;
   level: 'GREEN' | 'YELLOW' | 'RED';
   risk_factors: SafetyRiskFactor[];
   recommendations: string[];
+  breakdown?: SafetyScoreBreakdown;
+  version?: string;
 }

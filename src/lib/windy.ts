@@ -73,9 +73,9 @@ export const loadWindyScript = (): Promise<void> => {
  * Get Windy API key from environment
  */
 export const getWindyApiKey = (): string => {
-    const key = process.env.NEXT_PUBLIC_WINDY_API_KEY;
+    const key = process.env.NEXT_PUBLIC_WINDY_MAP_KEY;
     if (!key) {
-        console.warn('NEXT_PUBLIC_WINDY_API_KEY is not set');
+        console.warn('NEXT_PUBLIC_WINDY_MAP_KEY is not set');
         return '';
     }
     return key;

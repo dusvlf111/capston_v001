@@ -40,7 +40,7 @@ describe('WindyMap', () => {
         };
 
         // Mock environment variable
-        process.env.NEXT_PUBLIC_WINDY_API_KEY = 'test-api-key';
+        process.env.NEXT_PUBLIC_WINDY_MAP_KEY = 'test-api-key';
 
     });
 

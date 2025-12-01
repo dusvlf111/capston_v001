@@ -4,53 +4,42 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Button from '@/components/ui/Button';
 
-import { fetchMarineWeather } from '@/lib/services/weatherService';
-import { fetchWeatherWarnings, fetchCoastGuardStations } from '@/lib/services/publicDataService';
-import { generateSafetyReport } from '@/lib/services/aiService';
-import { analyzeSafety } from '@/lib/services/safetyService';
+import { buildReportInsights, type ReportPayload } from '@/lib/services/reportInsightsService';
+import type { Database } from '@/types/database.types';
+import type { SupabaseClient } from '@supabase/supabase-js';
+
+type ReportRow = Database['public']['Tables']['reports']['Row'] & {
+    location_data: ReportPayload;
+};
+type ReportsUpdate = Database['public']['Tables']['reports']['Update'];
 
 export default async function ReportResultPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    const supabase = await createClient();
+    const supabase = (await createClient()) as unknown as SupabaseClient<Database>;
     const { data: reportData } = await supabase
         .from('reports')
         .select('*')
         .eq('id', id)
         .single();
 
-    const report = reportData as any;
+    const report = reportData as unknown as ReportRow;
 
     if (!report) {
         notFound();
     }
 
-    const payload = report.location_data;
-    // Use stored analysis or calculate it on the fly if missing
-    const safetyAnalysis = payload.safety_analysis || await analyzeSafety({
-        location: payload.location,
-        activity: payload.activity,
-        contact: payload.contact,
-        companions: payload.companions,
-        notes: payload.notes
-    });
-    const location = payload.location;
-    const activity = payload.activity;
+    const { insights, updatedPayload, changed } = await buildReportInsights(report);
+    if (changed) {
+        const persistedPayload = JSON.parse(JSON.stringify(updatedPayload)) as ReportsUpdate['location_data'];
+        await supabase
+            .from('reports')
+            .update({ location_data: persistedPayload })
+            .eq('id', id);
+    }
 
-    // Fetch external data for AI report
-    // We fetch stations with coordinates to get distance
-    const [weatherData, warnings, stations] = await Promise.all([
-        fetchMarineWeather(location.coordinates.latitude, location.coordinates.longitude),
-        fetchWeatherWarnings(), // Default to national/Busan for now
-        fetchCoastGuardStations(location.coordinates.latitude, location.coordinates.longitude)
-    ]);
-
-    // Generate AI Safety Report
-    const aiReport = await generateSafetyReport(
-        { location, activity, contact: payload.contact, companions: payload.companions } as any,
-        weatherData,
-        warnings,
-        stations
-    );
+    const location = updatedPayload.location;
+    const activity = updatedPayload.activity;
+    const { safetyAnalysis, weather: weatherData, warnings, stations, aiReport } = insights;
 
     // Format report number if available, otherwise use ID prefix
     const reportNo = report.report_no ? `RPT-${report.report_no}` : id.slice(0, 8);
@@ -99,6 +88,7 @@ export default async function ReportResultPage({ params }: { params: Promise<{ i
                     aiReport={aiReport}
                     weatherData={weatherData}
                     warnings={warnings}
+                    stations={stations}
                 />
             ) : (
                 <div className="p-4 bg-gray-50 rounded-xl text-center text-gray-500">

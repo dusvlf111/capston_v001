@@ -66,8 +66,14 @@ export default function WindyMap() {
     const initializeWindy = () => {
         if (!window.windyInit) return;
 
+        const windyKey = process.env.NEXT_PUBLIC_WINDY_MAP_KEY;
+        if (!windyKey) {
+            console.warn('NEXT_PUBLIC_WINDY_MAP_KEY is not set. Windy map cannot initialize.');
+            return;
+        }
+
         const options = {
-            key: process.env.NEXT_PUBLIC_WINDY_API_KEY || 'Vn7KpbPckxNX0xdXrX3FLmFmevs8aL8C',
+            key: windyKey,
             lat: 36.5,
             lon: 127.5,
             zoom: 7,
@@ -109,7 +115,11 @@ export default function WindyMap() {
 
         if (showKHOA) {
             if (!khoaLayerRef.current) {
-                const kjoKey = process.env.NEXT_PUBLIC_KHOA_API_KEY || 'A6070E7933FD93AA0E7216652';
+                const kjoKey = process.env.NEXT_PUBLIC_KHOA_OPENSEA_KEY;
+                if (!kjoKey) {
+                    console.warn('NEXT_PUBLIC_KHOA_OPENSEA_KEY is not set. Unable to render KHOA layer.');
+                    return;
+                }
                 // Note: KHOA API might require HTTP or specific referrers. 
                 // Using the URL pattern provided in the guide.
                 const seaMapUrl = `http://www.khoa.go.kr/oceanmap/otile/tms/kov/{z}/{y}/{x}.png?apikey=${kjoKey}`;
@@ -226,7 +236,7 @@ export default function WindyMap() {
             <div id="windy" className="w-full h-full" />
 
             {/* Layer Controls */}
-            <div className="absolute bottom-8 right-4 z-[1000] flex flex-col gap-2">
+            <div className="absolute bottom-8 right-4 z-1000 flex flex-col gap-2">
                 <button
                     onClick={() => setShowKHOA(!showKHOA)}
                     className={`px-4 py-2 rounded-lg shadow-md text-sm font-medium transition-colors ${showKHOA

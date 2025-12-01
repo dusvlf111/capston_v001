@@ -30,6 +30,10 @@ export const generateSafetyReport = async (
     try {
         console.log('Generating AI Safety Report with data:', { report, weatherData, warnings, stations });
 
+        const nearestStations = stations.slice(0, 3)
+            .map((station, index) => ` ${index + 1}. ${station.name}${station.distance !== undefined ? ` (${station.distance.toFixed(1)} km)` : ''}${station.tel ? ` / ${station.tel}` : ''}`)
+            .join('\n') || ' 정보 없음';
+
         const prompt = `
     You are a marine safety expert AI. Analyze the following maritime activity plan and environmental data to provide a **concise** safety report.
 
@@ -45,10 +49,10 @@ export const generateSafetyReport = async (
     - Gust: ${weatherData?.wind_gusts ?? 'N/A'} m/s
     - Waves: ${weatherData?.wave_height ?? 'N/A'} m
     - Swell: ${weatherData?.swell_wave_height ?? 'N/A'} m
-    - Weather Warnings: ${warnings.length > 0 ? warnings.map(w => w.title).join(', ') : 'None'}
+    - Weather Warnings: ${warnings.length > 0 ? warnings.map(w => `${w.title} (${w.content || '내용 없음'})`).join('; ') : 'None'}
 
     **Nearby Resources:**
-    - Nearest Coast Guard: ${stations.length > 0 ? `${stations[0].name} (${stations[0].distance?.toFixed(1)} km away)` : 'Unknown'}
+    ${nearestStations}
 
     **Instructions:**
     1. **Analyze Safety**: Determine Risk Level (LOW, MEDIUM, HIGH).

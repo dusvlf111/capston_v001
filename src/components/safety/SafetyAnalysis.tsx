@@ -1,7 +1,7 @@
 import React from 'react';
 import { SafetyAnalysisResult, SafetyRiskFactor } from '@/types/api';
 import { MarineWeather } from '@/lib/services/weatherService';
-import { WeatherWarning } from '@/lib/services/publicDataService';
+import { WeatherWarning, CoastGuardStation } from '@/lib/services/publicDataService';
 
 interface SafetyAnalysisProps {
     result: SafetyAnalysisResult;
@@ -14,9 +14,10 @@ interface SafetyAnalysisProps {
     } | null;
     weatherData?: MarineWeather | null;
     warnings?: WeatherWarning[];
+    stations?: CoastGuardStation[];
 }
 
-export default function SafetyAnalysis({ result, aiReport, weatherData, warnings }: SafetyAnalysisProps) {
+export default function SafetyAnalysis({ result, aiReport, weatherData, warnings, stations }: SafetyAnalysisProps) {
     const { score, level, risk_factors, recommendations } = result;
 
     const getLevelColor = (level: string) => {
@@ -105,6 +106,30 @@ export default function SafetyAnalysis({ result, aiReport, weatherData, warnings
                         </div>
                     </div>
                 )}
+                {stations && stations.length > 0 && (
+                    <div className="px-4 pb-4">
+                        <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-lg">
+                            <div className="text-xs font-bold text-emerald-700 mb-1">🚨 인근 해양경찰 연락처</div>
+                            <ul className="text-sm text-emerald-700 divide-y divide-emerald-100">
+                                {stations.slice(0, 3).map((station, index) => (
+                                    <li key={`${station.name}-${index}`} className="py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                                        <div>
+                                            <p className="font-semibold">{station.name}</p>
+                                            {station.distance !== undefined && (
+                                                <p className="text-xs text-emerald-600">약 {station.distance.toFixed(1)} km</p>
+                                            )}
+                                        </div>
+                                        {station.tel && (
+                                            <a href={`tel:${station.tel.replace(/[^0-9]/g, '')}`} className="text-sm font-medium text-emerald-800 underline">
+                                                {station.tel}
+                                            </a>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Risk Factors */}
@@ -116,7 +141,7 @@ export default function SafetyAnalysis({ result, aiReport, weatherData, warnings
                     <div className="divide-y divide-gray-100">
                         {risk_factors.map((factor, index) => (
                             <div key={index} className="p-4 flex items-start gap-3">
-                                <div className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${factor.severity === 'HIGH' ? 'bg-red-500' :
+                                <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${factor.severity === 'HIGH' ? 'bg-red-500' :
                                     factor.severity === 'MEDIUM' ? 'bg-yellow-500' : 'bg-blue-500'
                                     }`} />
                                 <div>

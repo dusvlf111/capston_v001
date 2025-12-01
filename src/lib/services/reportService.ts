@@ -1,4 +1,17 @@
 import { ReportRequest, ReportResponse } from '@/types/api';
+import type { ReportInsights } from './reportInsightsService';
+import type { ReportPayload } from './reportInsightsService';
+
+export interface ReportInsightsResponse {
+    id: string;
+    reportNo: string;
+    location: ReportPayload['location'];
+    activity: ReportPayload['activity'];
+    contact: ReportPayload['contact'];
+    notes?: string;
+    companions?: ReportPayload['companions'];
+    insights: ReportInsights;
+}
 
 class ReportServiceError extends Error {
     constructor(public message: string, public status?: number, public details?: unknown) {
@@ -54,6 +67,13 @@ export const reportService = {
         const response = await fetch('/api/report/history');
         return handleResponse<ReportResponse[]>(response);
     },
+
+    async getReportInsights(id: string): Promise<ReportInsightsResponse> {
+        const response = await fetch(`/api/report/${id}/insights`, {
+            cache: 'no-store'
+        });
+        return handleResponse<ReportInsightsResponse>(response);
+    }
 };
 
 export type { ReportServiceError };

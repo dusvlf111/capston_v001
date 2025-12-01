@@ -11,12 +11,13 @@ progressive-web-app support (`next-pwa`), and a Vercel-friendly build setup.
    npm install
    ```
 
-2. **Create a `.env.local`** file at the project root with the Supabase keys:
+2. **Configure environment variables**
 
    ```bash
-   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   cp .env.example .env.local
    ```
+
+   Then edit `.env.local` with your Supabase, Windy, 공공데이터포털, KHOA, and OpenAI credentials.
 
 3. **Start the dev server**
 
@@ -32,6 +33,20 @@ progressive-web-app support (`next-pwa`), and a Vercel-friendly build setup.
    ```bash
    npm run lint
    ```
+
+## Environment Variables
+
+All required keys are listed in `.env.example`. Copy it to `.env.local` and fill the following values:
+
+| Variable | Scope | Description |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Client | Supabase project URL used by the browser/client. |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Client | Supabase anon key exposed to the client. |
+| `NEXT_PUBLIC_WINDY_MAP_KEY` | Client | Windy Map Forecast key used to render the interactive map. |
+| `NEXT_PUBLIC_KHOA_OPENSEA_KEY` | Client | 국립해양조사원 타일 레이어 인증키. |
+| `WINDY_POINT_API_KEY` | Server | Windy Point Forecast API key for 실시간 바람/파고 데이터. |
+| `DATA_PORTAL_API_KEY` | Server | 공공데이터포털(기상청/해경) 인증키. |
+| `OPENAI_API_KEY` | Server | 안전 리포트 생성을 위한 OpenAI 키. |
 
 ## Supabase Integration
 
