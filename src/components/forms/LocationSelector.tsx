@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Control } from "react-hook-form";
 import { useController } from "react-hook-form";
 import Input from "@/components/ui/Input";
@@ -13,12 +13,27 @@ interface LocationSelectorProps {
   className?: string;
 }
 
+interface SearchResult {
+  display_name: string;
+  lat: string;
+  lon: string;
+}
+
 const formatCoordinate = (value: unknown) =>
   typeof value === "number" && Number.isFinite(value) ? value.toFixed(6) : "";
 
 export default function LocationSelector({ control, className }: LocationSelectorProps) {
   const [geoError, setGeoError] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+
+  const mapRef = useRef<any>(null);
+  const markerRef = useRef<any>(null);
+  const windyAPIRef = useRef<any>(null);
+  const isWindyInitializedRef = useRef(false);
 
   const {
     field: locationNameField,
@@ -47,6 +62,79 @@ export default function LocationSelector({ control, className }: LocationSelecto
     return typeof latitudeField.value === "number" && typeof longitudeField.value === "number";
   }, [latitudeField.value, longitudeField.value]);
 
+  // Initialize Windy Map
+  useEffect(() => {
+    if (typeof window === "undefined" || !hasCoordinates || isWindyInitializedRef.current) return;
+
+    const existingScript = document.querySelector('script[src="https://api.windy.com/assets/map-forecast/libBoot.js"]');
+
+    const initializeMap = () => {
+      if (!window.windyInit || isWindyInitializedRef.current) return;
+
+      const mapContainer = document.getElementById('windy-report-map');
+      if (!mapContainer) {
+        setTimeout(initializeMap, 100);
+        return;
+      }
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_WINDY_API_KEY || 'Vn7KpbPckxNX0xdXrX3FLmFmevs8aL8C',
+        lat: latitudeField.value,
+        lon: longitudeField.value,
+        zoom: 13,
+      };
+
+      window.windyInit(options, (windyAPI: any) => {
+        windyAPIRef.current = windyAPI;
+        mapRef.current = windyAPI.map;
+        isWindyInitializedRef.current = true;
+
+        // Add marker
+        if (window.L && mapRef.current) {
+          markerRef.current = window.L.marker([latitudeField.value, longitudeField.value])
+            .addTo(mapRef.current)
+            .bindPopup(locationNameField.value || '활동 위치');
+        }
+      });
+    };
+
+    if (existingScript && window.windyInit) {
+      initializeMap();
+      return;
+    }
+
+    if (!existingScript) {
+      const script = document.createElement('script');
+      script.src = 'https://api.windy.com/assets/map-forecast/libBoot.js';
+      script.async = true;
+      script.onload = () => {
+        initializeMap();
+      };
+      document.body.appendChild(script);
+    }
+  }, [hasCoordinates, latitudeField.value, longitudeField.value, locationNameField.value]);
+
+  // Update map when coordinates change
+  useEffect(() => {
+    if (!mapRef.current || !hasCoordinates) return;
+
+    // Update map center
+    mapRef.current.setView([latitudeField.value, longitudeField.value], 13);
+
+    // Remove old marker
+    if (markerRef.current && mapRef.current.hasLayer(markerRef.current)) {
+      mapRef.current.removeLayer(markerRef.current);
+    }
+
+    // Add new marker
+    if (window.L) {
+      markerRef.current = window.L.marker([latitudeField.value, longitudeField.value])
+        .addTo(mapRef.current)
+        .bindPopup(locationNameField.value || '활동 위치')
+        .openPopup();
+    }
+  }, [latitudeField.value, longitudeField.value, locationNameField.value, hasCoordinates]);
+
   const handleUseCurrentLocation = useCallback(() => {
     if (typeof window === "undefined" || !("geolocation" in navigator)) {
       setGeoError("현재 브라우저에서 위치 정보를 사용할 수 없습니다.");
@@ -62,6 +150,11 @@ export default function LocationSelector({ control, className }: LocationSelecto
         const lng = Number(position.coords.longitude.toFixed(6));
         latitudeField.onChange(lat);
         longitudeField.onChange(lng);
+
+        if (!locationNameField.value) {
+          locationNameField.onChange('현재 위치');
+        }
+
         setIsLocating(false);
       },
       (error) => {
@@ -74,14 +167,56 @@ export default function LocationSelector({ control, className }: LocationSelecto
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
-  }, [latitudeField, longitudeField]);
+  }, [latitudeField, longitudeField, locationNameField]);
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+
+    setIsSearching(true);
+    setGeoError(null);
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=5`
+      );
+      const data = await response.json();
+      setSearchResults(data);
+      setShowResults(true);
+    } catch (error) {
+      console.error('Search failed:', error);
+      setGeoError('위치 검색에 실패했습니다.');
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSelectLocation = (result: SearchResult) => {
+    const lat = parseFloat(result.lat);
+    const lon = parseFloat(result.lon);
+
+    latitudeField.onChange(lat);
+    longitudeField.onChange(lon);
+    locationNameField.onChange(result.display_name);
+
+    setSearchQuery('');
+    setSearchResults([]);
+    setShowResults(false);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSearch();
+    }
+  };
 
   return (
     <section className={cn("space-y-4 rounded-2xl border border-slate-800 bg-slate-950/60 p-5", className)}>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="text-sm font-semibold text-slate-300">신고 위치 정보</p>
-          <p className="text-xs text-slate-500">주소를 입력하거나 현재 위치를 불러오세요.</p>
+          <p className="text-xs text-slate-500">주소를 검색하거나 현재 위치를 불러오세요.</p>
         </div>
         <Button
           type="button"
@@ -91,8 +226,48 @@ export default function LocationSelector({ control, className }: LocationSelecto
           isLoading={isLocating}
           data-testid="use-current-location"
         >
-          현재 위치 사용
+          📍 현재 위치 사용
         </Button>
+      </div>
+
+      {/* Address Search */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-slate-300">위치 검색</label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="예: 부산 해운대 해수욕장"
+            className="flex-1 rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-2 text-sm text-slate-50 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-400"
+          />
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            onClick={handleSearch}
+            isLoading={isSearching}
+          >
+            검색
+          </Button>
+        </div>
+
+        {/* Search Results */}
+        {showResults && searchResults.length > 0 && (
+          <div className="max-h-48 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950">
+            {searchResults.map((result, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleSelectLocation(result)}
+                className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-800 border-b border-slate-800 last:border-b-0"
+              >
+                {result.display_name}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <Input
@@ -122,19 +297,19 @@ export default function LocationSelector({ control, className }: LocationSelecto
 
       {geoError && <p className="text-sm text-rose-400" role="alert">{geoError}</p>}
 
+      {/* Map Preview */}
       <div
         aria-label="지도 미리보기"
         data-testid="map-preview"
-        className="flex h-40 flex-col justify-between rounded-2xl border border-slate-800 bg-linear-to-br from-slate-900 to-slate-950 p-4 text-slate-300"
+        className={cn(
+          "overflow-hidden rounded-2xl border border-slate-800",
+          hasCoordinates ? "h-64" : "h-40 flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-950"
+        )}
       >
         {hasCoordinates ? (
-          <>
-            <p className="text-xl font-semibold text-slate-50">{formatCoordinate(latitudeField.value)}° N</p>
-            <p className="text-xl font-semibold text-slate-50">{formatCoordinate(longitudeField.value)}° E</p>
-            <p className="text-xs text-slate-400">정확한 지도는 추후 연동 예정입니다.</p>
-          </>
+          <div id="windy-report-map" className="w-full h-full" />
         ) : (
-          <p className="text-sm text-slate-500">현재 위치 정보를 입력하거나 가져오면 지도가 표시됩니다.</p>
+          <p className="text-sm text-slate-500">위치를 검색하거나 입력하면 지도가 표시됩니다.</p>
         )}
       </div>
     </section>
