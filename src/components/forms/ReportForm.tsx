@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import LocationSelector from "@/components/forms/LocationSelector";
 import ActivitySelector from "@/components/forms/ActivitySelector";
 import ContactForm from "@/components/forms/ContactForm";
+import CompanionForm from "@/components/forms/CompanionForm";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import type { ReportResponse } from "@/types/api";
@@ -33,6 +34,7 @@ const buildDefaultValues = (): ReportSchema => ({
     phone: "",
     emergencyContact: "",
   },
+  companions: [],
   notes: "",
 });
 
@@ -41,17 +43,17 @@ export default function ReportForm({ className }: { className?: string }) {
   const [lastReport, setLastReport] = useState<ReportResponse | null>(null);
   const defaultValues = useMemo(() => buildDefaultValues(), []);
 
-  const {
-    control,
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<ReportSchema>({
+  const methods = useForm<ReportSchema>({
     resolver: zodResolver(reportSchema),
     defaultValues,
     mode: "onBlur",
   });
+
+  const {
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = methods;
 
   const onSubmit = handleSubmit(async (values) => {
     setServerError(null);
@@ -90,38 +92,41 @@ export default function ReportForm({ className }: { className?: string }) {
   };
 
   return (
-    <form onSubmit={onSubmit} className={cn("space-y-6", className)}>
-      <LocationSelector control={control} />
-      <ActivitySelector control={control} />
-      <ContactForm control={control} />
+    <FormProvider {...methods}>
+      <form onSubmit={onSubmit} className={cn("space-y-6", className)}>
+        <LocationSelector control={methods.control} />
+        <ActivitySelector control={methods.control} />
+        <ContactForm control={methods.control} />
+        <CompanionForm />
 
-      <label className="flex flex-col gap-2 text-sm text-slate-200">
-        <span className="font-semibold text-slate-50">비고 (선택)</span>
-        <textarea
-          className="min-h-[120px] rounded-2xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-base text-slate-50 placeholder:text-slate-500 transition focus-visible:outline-2 focus-visible:outline-sky-400"
-          placeholder="추가로 공유하고 싶은 안전 정보나 특이사항을 입력하세요."
-          {...register("notes")}
-        />
-        {errors.notes?.message && <span className="text-xs text-rose-400">{errors.notes.message}</span>}
-      </label>
+        <label className="flex flex-col gap-2 text-sm text-slate-200">
+          <span className="font-semibold text-slate-50">비고 (선택)</span>
+          <textarea
+            className="min-h-[120px] rounded-2xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-base text-slate-50 placeholder:text-slate-500 transition focus-visible:outline-2 focus-visible:outline-sky-400"
+            placeholder="추가로 공유하고 싶은 안전 정보나 특이사항을 입력하세요."
+            {...methods.register("notes")}
+          />
+          {errors.notes?.message && <span className="text-xs text-rose-400">{errors.notes.message}</span>}
+        </label>
 
-      {serverError && <Alert variant="error" title="제출에 실패했습니다" description={serverError} />}
-      {lastReport && (
-        <Alert
-          variant="success"
-          title="신고가 접수되었습니다"
-          description={`접수 번호 ${lastReport.reportId} (상태: ${lastReport.status})`}
-        />
-      )}
+        {serverError && <Alert variant="error" title="제출에 실패했습니다" description={serverError} />}
+        {lastReport && (
+          <Alert
+            variant="success"
+            title="신고가 접수되었습니다"
+            description={`접수 번호 ${lastReport.reportId} (상태: ${lastReport.status})`}
+          />
+        )}
 
-      <div className="flex flex-wrap justify-end gap-3">
-        <Button type="button" variant="secondary" onClick={handleReset} disabled={isSubmitting}>
-          입력 초기화
-        </Button>
-        <Button type="submit" isLoading={isSubmitting}>
-          신고 제출
-        </Button>
-      </div>
-    </form>
+        <div className="flex flex-wrap justify-end gap-3">
+          <Button type="button" variant="secondary" onClick={handleReset} disabled={isSubmitting}>
+            입력 초기화
+          </Button>
+          <Button type="submit" isLoading={isSubmitting}>
+            신고 제출
+          </Button>
+        </div>
+      </form>
+    </FormProvider>
   );
 }

@@ -48,11 +48,20 @@ const contactSchema = z.object({
     .regex(phonePattern, '응급 연락처는 010-XXXX-XXXX 형식이어야 합니다.')
 });
 
+const companionSchema = z.object({
+  name: z.string().min(2, '이름은 2자 이상이어야 합니다.'),
+  phone: z.string().regex(phonePattern, '전화번호는 010-XXXX-XXXX 형식이어야 합니다.'),
+  emergencyContact: z
+    .string()
+    .regex(phonePattern, '응급 연락처는 010-XXXX-XXXX 형식이어야 합니다.')
+});
+
 export const reportSchema = z.object({
   location: locationSchema,
   activity: activitySchema,
   contact: contactSchema,
-  notes: z.string().max(500, '비고는 500자 이하여야 합니다.').optional()
+  notes: z.string().max(500, '비고는 500자 이하여야 합니다.').optional(),
+  companions: z.array(companionSchema).optional()
 });
 
 export type ReportSchema = z.infer<typeof reportSchema>;

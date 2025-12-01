@@ -38,11 +38,18 @@ export interface ContactPayload {
   emergencyContact: string;
 }
 
+export interface CompanionPayload {
+  name: string;
+  phone: string;
+  emergencyContact: string;
+}
+
 export interface ReportRequest {
   location: LocationPayload;
   activity: ActivityPayload;
   contact: ContactPayload;
   notes?: string;
+  companions?: CompanionPayload[];
 }
 
 export interface ReportResponse {

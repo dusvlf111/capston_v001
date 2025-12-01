@@ -1,0 +1,82 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "해양자율신고" [ref=e5] [cursor=pointer]:
+          - /url: /
+        - navigation [ref=e6]:
+          - link "홈" [ref=e7] [cursor=pointer]:
+            - /url: /
+          - link "신고" [ref=e8] [cursor=pointer]:
+            - /url: /report
+          - link "대시보드" [ref=e9] [cursor=pointer]:
+            - /url: /dashboard
+          - link "문서" [ref=e10] [cursor=pointer]:
+            - /url: /docs
+        - generic [ref=e11]:
+          - link "로그인" [ref=e12] [cursor=pointer]:
+            - /url: /login
+          - link "회원가입" [ref=e13] [cursor=pointer]:
+            - /url: /signup
+    - main [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - paragraph [ref=e17]: 해양 레저 자율신고
+          - heading "안전한 해양 활동을 위한 로그인" [level=1] [ref=e18]
+          - paragraph [ref=e19]: 이메일 또는 소셜 계정으로 로그인하고 자율신고 현황, 안전구역, 분석 리포트를 실시간으로 확인하세요.
+          - paragraph [ref=e20]:
+            - text: 계정이 없다면?
+            - link "지금 회원가입" [ref=e21] [cursor=pointer]:
+              - /url: /signup
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - heading "로그인" [level=2] [ref=e25]
+            - paragraph [ref=e26]: 계정 정보를 입력하거나 소셜 로그인을 사용하세요.
+          - generic [ref=e27]:
+            - generic [ref=e28]: 이메일
+            - textbox "이메일" [ref=e29]:
+              - /placeholder: you@example.com
+              - text: test@example.com
+          - generic [ref=e30]:
+            - generic [ref=e31]: 비밀번호
+            - textbox "비밀번호" [ref=e32]:
+              - /placeholder: 8자 이상
+              - text: password123
+          - generic [ref=e33]:
+            - paragraph [ref=e34]: 로그인 실패
+            - paragraph [ref=e35]: Invalid login credentials
+          - button "이메일로 로그인" [ref=e36]
+          - generic [ref=e37]: 또는 소셜 계정으로
+          - generic [ref=e40]:
+            - button "Google 로그인" [ref=e41]
+            - button "Kakao 로그인" [ref=e42]
+    - contentinfo [ref=e43]:
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - paragraph [ref=e46]: 해양자율신고
+          - paragraph [ref=e47]: © 2025 Marine Safe Network. All rights reserved.
+        - generic [ref=e48]:
+          - link "이용약관" [ref=e49] [cursor=pointer]:
+            - /url: /terms
+          - link "개인정보처리방침" [ref=e50] [cursor=pointer]:
+            - /url: /privacy
+          - link "문의하기" [ref=e51] [cursor=pointer]:
+            - /url: mailto:support@marine-safe.kr
+  - generic [ref=e56] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e57]:
+      - img [ref=e58]
+    - generic [ref=e61]:
+      - button "Open issues overlay" [ref=e62]:
+        - generic [ref=e63]:
+          - generic [ref=e64]: "1"
+          - generic [ref=e65]: "2"
+        - generic [ref=e66]:
+          - text: Issue
+          - generic [ref=e67]: s
+      - button "Collapse issues badge" [ref=e68]:
+        - img [ref=e69]
+  - alert [ref=e71]
+```

@@ -36,8 +36,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: '알 수 없는 오류가 발생했습니다.' }, { status: 400 });
   }
 
-  const { location, activity, contact, notes } = payload;
-  
+  const { location, activity, contact, notes, companions } = payload;
+
   // @ts-ignore - Supabase RPC 타입 추론 문제로 임시 무시
   const { data, error: rpcError } = await supabase.rpc('submit_report', {
     location_name: location.name,
@@ -50,7 +50,8 @@ export async function POST(request: Request) {
     contact_name: contact.name,
     contact_phone: contact.phone,
     emergency_contact: contact.emergencyContact,
-    notes: notes ?? null
+    notes: notes ?? null,
+    companions: companions ?? []
   } as Database['public']['Functions']['submit_report']['Args']);
 
   if (rpcError) {

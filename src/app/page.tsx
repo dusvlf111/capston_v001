@@ -9,10 +9,10 @@ export default function Home() {
       <main className="flex-1">
         <div className="relative h-screen w-full">
           <WindyMap />
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-white/80 pointer-events-none z-10">
-            <span className="text-sm">Scroll Down</span>
-            <div className="mx-auto mt-1 h-6 w-4 rounded-full border-2 border-white/50 p-1">
-              <div className="h-1.5 w-full rounded-full bg-white/80" />
+          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 animate-bounce text-white pointer-events-none z-10 flex flex-col items-center gap-2 drop-shadow-lg">
+            <span className="text-base font-semibold tracking-widest uppercase text-sky-300">Scroll Down</span>
+            <div className="h-10 w-6 rounded-full border-2 border-white/80 p-1 bg-black/20 backdrop-blur-sm">
+              <div className="h-2 w-full rounded-full bg-sky-400 shadow-[0_0_10px_rgba(56,189,248,0.8)]" />
             </div>
           </div>
         </div>
