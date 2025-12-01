@@ -1,0 +1,130 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "해양자율신고" [ref=e5] [cursor=pointer]:
+          - /url: /
+        - navigation [ref=e6]:
+          - link "홈" [ref=e7] [cursor=pointer]:
+            - /url: /
+          - link "신고" [ref=e8] [cursor=pointer]:
+            - /url: /report
+          - link "대시보드" [ref=e9] [cursor=pointer]:
+            - /url: /dashboard
+          - link "문서" [ref=e10] [cursor=pointer]:
+            - /url: /docs
+        - generic [ref=e11]:
+          - link "로그인" [ref=e12] [cursor=pointer]:
+            - /url: /login
+          - link "회원가입" [ref=e13] [cursor=pointer]:
+            - /url: /signup
+    - main [ref=e14]:
+      - generic [ref=e15]:
+        - heading "Test Report Form" [level=1] [ref=e16]
+        - generic [ref=e17]:
+          - generic [ref=e18]:
+            - generic [ref=e19]:
+              - generic [ref=e20]:
+                - paragraph [ref=e21]: 신고 위치 정보
+                - paragraph [ref=e22]: 주소를 검색하거나 현재 위치를 불러오세요.
+              - button "📍 현재 위치 사용" [ref=e23]
+            - generic [ref=e24]:
+              - text: 위치 검색
+              - generic [ref=e25]:
+                - 'textbox "예: 부산 해운대 해수욕장" [ref=e26]'
+                - button "검색" [ref=e27]
+            - generic [ref=e28]:
+              - generic [ref=e29]: 활동 위치
+              - textbox "활동 위치" [ref=e30]:
+                - /placeholder: "예: 부산 해운대 해수욕장"
+                - text: Test Beach
+            - generic [ref=e31]:
+              - generic [ref=e32]:
+                - generic [ref=e33]: 위도
+                - textbox "위도" [ref=e34]: "35.000000"
+              - generic [ref=e35]:
+                - generic [ref=e36]: 경도
+                - textbox "경도" [ref=e37]: "129.000000"
+            - generic "지도 미리보기" [ref=e38]
+          - generic [ref=e40]:
+            - generic [ref=e41]:
+              - paragraph [ref=e42]: 활동 정보
+              - paragraph [ref=e43]: 활동 종류와 일정을 입력하세요.
+            - group "활동 유형 선택" [ref=e44]:
+              - button "패들보드" [pressed] [ref=e45]
+              - button "카약" [ref=e46]
+              - button "윈드서핑" [ref=e47]
+              - button "서핑" [ref=e48]
+              - button "요트" [ref=e49]
+              - button "스쿠버다이빙" [ref=e50]
+              - button "스노클링" [ref=e51]
+              - button "수상오토바이" [ref=e52]
+              - button "카누" [ref=e53]
+              - button "세일링" [ref=e54]
+            - generic [ref=e55]:
+              - generic [ref=e56]:
+                - generic [ref=e57]: 시작 시간
+                - textbox "시작 시간" [ref=e58] [cursor=pointer]: 2025-12-01T07:52
+              - generic [ref=e59]:
+                - generic [ref=e60]: 종료 시간
+                - textbox "종료 시간" [ref=e61] [cursor=pointer]: 2025-12-01T08:52
+            - generic [ref=e62]:
+              - generic [ref=e63]: 참가자 수
+              - spinbutton "참가자 수" [ref=e64]: "2"
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - generic [ref=e67]:
+                - paragraph [ref=e68]: 연락처 정보
+                - paragraph [ref=e69]: 본인 및 비상 연락처를 정확히 입력하세요.
+              - button "프로필에서 불러오기" [disabled] [ref=e70]
+            - generic [ref=e71]:
+              - generic [ref=e72]:
+                - generic [ref=e73]: 신고자 이름
+                - textbox "신고자 이름" [active] [ref=e74]:
+                  - /placeholder: 홍길동
+                  - text: Tester
+              - generic [ref=e75]:
+                - generic [ref=e76]: 연락처
+                - textbox "연락처" [ref=e77]:
+                  - /placeholder: 010-0000-0000
+            - generic [ref=e78]:
+              - generic [ref=e79]: 비상 연락처
+              - textbox "비상 연락처" [ref=e80]:
+                - /placeholder: 010-0000-0000
+          - generic [ref=e81]:
+            - generic [ref=e82]: 비고 (선택)
+            - textbox "비고 (선택)" [ref=e83]:
+              - /placeholder: 추가로 공유하고 싶은 안전 정보나 특이사항을 입력하세요.
+          - generic [ref=e84]:
+            - button "입력 초기화" [ref=e85]
+            - button "신고 제출" [ref=e86]
+    - contentinfo [ref=e87]:
+      - generic [ref=e88]:
+        - generic [ref=e89]:
+          - paragraph [ref=e90]: 해양자율신고
+          - paragraph [ref=e91]: © 2025 Marine Safe Network. All rights reserved.
+        - generic [ref=e92]:
+          - link "이용약관" [ref=e93] [cursor=pointer]:
+            - /url: /terms
+          - link "개인정보처리방침" [ref=e94] [cursor=pointer]:
+            - /url: /privacy
+          - link "문의하기" [ref=e95] [cursor=pointer]:
+            - /url: mailto:support@marine-safe.kr
+  - generic [ref=e100] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e101]:
+      - img [ref=e102]
+    - generic [ref=e105]:
+      - button "Open issues overlay" [ref=e106]:
+        - generic [ref=e107]:
+          - generic [ref=e108]: "2"
+          - generic [ref=e109]: "3"
+        - generic [ref=e110]:
+          - text: Issue
+          - generic [ref=e111]: s
+      - button "Collapse issues badge" [ref=e112]:
+        - img [ref=e113]
+  - alert [ref=e115]
+```

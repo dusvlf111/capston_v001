@@ -6,13 +6,6 @@ import ServiceIntro from "@/components/home/ServiceIntro";
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-slate-950">
-      <header className="absolute top-0 left-0 z-10 w-full p-4 bg-transparent pointer-events-none">
-        <div className="mx-auto max-w-7xl text-center">
-          <h1 className="text-3xl font-bold text-white drop-shadow-lg pointer-events-auto inline-block bg-black/20 px-6 py-2 rounded-full backdrop-blur-sm border border-white/10">
-            Marine Leisure Safety Map
-          </h1>
-        </div>
-      </header>
       <main className="flex-1">
         <div className="relative h-screen w-full">
           <WindyMap />
