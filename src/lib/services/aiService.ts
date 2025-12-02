@@ -31,7 +31,8 @@ export const generateSafetyReport = async (
         console.log('Generating AI Safety Report with data:', { report, weatherData, warnings, stations });
 
         const prompt = `
-    You are a marine safety expert AI. Analyze the following maritime activity plan and environmental data to provide a **concise** safety report.
+    You are a marine safety expert AI. Analyze the following maritime activity plan and environmental data to provide a **concise** safety report. 
+    한국어로 설명해주세요.
 
     **Activity Details:**
     - Type: ${report.activity.type}
