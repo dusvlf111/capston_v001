@@ -17,7 +17,7 @@ export const externalApiConfig = {
     },
     publicData: {
         weatherWarningUrl: 'https://apis.data.go.kr/1360000/WthrWrnInfoService/getWthrWrnList',
-        coastGuardUrl: 'https://apis.data.go.kr/1532000/KCG_Station_Position/getKCGStationPosition',
+        coastGuardUrl: 'https://apis.data.go.kr/1532000/KCG_Station_Position/list_view',
         get apiKey() {
             return process.env.DATA_PORTAL_KEY
                 ?? process.env.DATA_PORTAL_API_KEY

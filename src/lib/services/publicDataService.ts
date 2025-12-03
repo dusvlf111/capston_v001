@@ -114,14 +114,14 @@ const parseStationItems = (items: any): CoastGuardStation[] => {
     const list = Array.isArray(items) ? items : [items];
     return list
         .map((item: any) => {
-            const lat = Number(item.lat ?? item.obsLctnLa);
-            const lon = Number(item.lon ?? item.obsLctnLo);
+            const lat = Number(item.lat ?? item.obsLctnLa ?? item.c_WiDo);
+            const lon = Number(item.lon ?? item.obsLctnLo ?? item.c_KyeongDo);
             if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
                 return null;
             }
             return {
-                name: item.stationNm ?? item.observatoryName ?? '해양경찰 파출소',
-                tel: item.tel ?? item.telNo ?? item.phone ?? '',
+                name: item.stationNm ?? item.observatoryName ?? item.c_MyeongChing ?? '해양경찰 파출소',
+                tel: item.tel ?? item.telNo ?? item.phone ?? item.c_Tel ?? '',
                 lat,
                 lon,
             } as CoastGuardStation;
@@ -187,8 +187,8 @@ const fetchBaseStations = async (): Promise<CoastGuardStation[]> => {
             params: {
                 serviceKey: apiKey,
                 dataType: 'JSON',
-                numOfRows: 200,
-                pageNo: 1,
+                rowsCount: 300,
+                startPage: 1,
             },
         });
 

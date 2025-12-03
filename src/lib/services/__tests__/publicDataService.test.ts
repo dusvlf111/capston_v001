@@ -96,7 +96,7 @@ describe('publicDataService', () => {
                         items: {
                             item: [
                                 { stationNm: '부산해경', tel: '051-111-1111', lat: '35.1', lon: '129.1' },
-                                { stationNm: '제주해경', tel: '064-111-1111', lat: '33.5', lon: '126.5' },
+                                { c_MyeongChing: '감천파출소', c_WiDo: '35.0844', c_KyeongDo: '129.0005', c_Tel: '051-222-3333' },
                             ],
                         },
                     },
@@ -108,6 +108,8 @@ describe('publicDataService', () => {
 
         expect(stations[0].name).toBe('부산해경');
         expect(stations[0].distance).toBeLessThan(stations[1].distance ?? Infinity);
+        expect(stations[1].name).toBe('감천파출소');
+        expect(stations[1].tel).toBe('051-222-3333');
     });
 
     it('falls back to static list when API key is missing', async () => {
