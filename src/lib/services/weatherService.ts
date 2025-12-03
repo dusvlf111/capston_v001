@@ -68,7 +68,8 @@ const mapWindyToMarineWeather = (data: WindyPointForecastResponse): MarineWeathe
     const windV = getSeriesValue(data['wind_v-surface'], index);
     const gust = getSeriesValue(data['gust-surface'], index) ?? 0;
     const waves = getSeriesValue(data['waves_height-surface'], index) ?? 0;
-    const swell = getSeriesValue(data['swell_height-surface'], index) ?? 0;
+    const swellSeries = data['swell1_height-surface'] ?? data['swell_height-surface'];
+    const swell = getSeriesValue(swellSeries, index) ?? 0;
     const { speed, direction } = calculateWindVector(windU, windV);
 
     return {
