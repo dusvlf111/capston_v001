@@ -1,6 +1,6 @@
 import { ReportRequest, ReportResponse } from '@/types/api';
 import type { ReportInsights } from './reportInsightsService';
-import type { ReportPayload } from './reportInsightsService';
+import type { ReportPayload } from '@/lib/services/types/reportPayload';
 
 export interface ReportInsightsResponse {
     id: string;

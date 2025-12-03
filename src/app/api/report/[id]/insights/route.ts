@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { buildReportInsights, type ReportPayload } from '@/lib/services/reportInsightsService';
+import { buildReportInsights } from '@/lib/services/reportInsightsService';
 import type { Database } from '@/types/database.types';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-type ReportRow = Database['public']['Tables']['reports']['Row'];
+type ReportRow = Database['public']['Tables']['reports']['Row'] & {
+    location_data: unknown;
+};
 
 function formatReportNo(report: ReportRow, fallbackId: string): string {
     if (report.report_no) {
@@ -26,9 +28,8 @@ export async function GET(_request: Request, { params }: { params: { id: string 
             return NextResponse.json({ message: 'Report not found' }, { status: 404 });
         }
 
-        const reportRow = report as unknown as ReportRow;
-        const typedReport = { ...reportRow, location_data: reportRow.location_data as ReportPayload };
-        const { insights, updatedPayload, changed } = await buildReportInsights(typedReport);
+        const reportRow = report as ReportRow;
+        const { insights, updatedPayload, changed } = await buildReportInsights(reportRow);
 
         if (changed) {
             const persisted = JSON.parse(JSON.stringify(updatedPayload));

@@ -1,11 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { buildReportInsights, type ReportPayload } from '../reportInsightsService';
+import { buildReportInsights } from '../reportInsightsService';
+import type { ReportPayload } from '@/lib/services/types/reportPayload';
 import { analyzeSafety } from '../safetyService';
 import { fetchEnvironmentalInsights } from '../environmentService';
 import { generateSafetyReport } from '../aiService';
 
 vi.mock('../safetyService', () => ({
     analyzeSafety: vi.fn(),
+    SAFETY_ANALYSIS_VERSION: '2025.12',
 }));
 
 vi.mock('../environmentService', () => ({
@@ -46,6 +48,7 @@ describe('buildReportInsights', () => {
             level: 'GREEN',
             risk_factors: [],
             recommendations: [],
+            version: '2025.12',
         });
         mockEnv.mockResolvedValue({
             weather: { time: new Date().toISOString(), wind_speed: 5, wind_direction: 180, wind_gusts: 7, wave_height: 0.8, swell_wave_height: 0.3, provider: 'windy' },
@@ -81,6 +84,7 @@ describe('buildReportInsights', () => {
                 level: 'GREEN',
                 risk_factors: [],
                 recommendations: [],
+                version: '2025.12',
             },
             environmental_data: {
                 weather: { time: new Date().toISOString(), wind_speed: 4, wind_direction: 100, wind_gusts: 6, wave_height: 0.5, swell_wave_height: 0.2, provider: 'windy' },

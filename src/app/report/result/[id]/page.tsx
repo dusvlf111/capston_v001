@@ -4,12 +4,12 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Button from '@/components/ui/Button';
 
-import { buildReportInsights, type ReportPayload } from '@/lib/services/reportInsightsService';
+import { buildReportInsights } from '@/lib/services/reportInsightsService';
 import type { Database } from '@/types/database.types';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 type ReportRow = Database['public']['Tables']['reports']['Row'] & {
-    location_data: ReportPayload;
+    location_data: unknown;
 };
 type ReportsUpdate = Database['public']['Tables']['reports']['Update'];
 
@@ -52,9 +52,9 @@ export default async function ReportResultPage({ params }: { params: Promise<{ i
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900">신고 접수 완료</h1>
-                <p className="text-gray-600">
-                    접수번호: <span className="font-mono font-medium text-gray-900">{reportNo}</span>
+                <h1 className="text-2xl font-bold text-white-900">신고 접수 완료</h1>
+                <p className="text-white-600">
+                    접수번호: <span className="font-mono font-medium text-white-900">{reportNo}</span>
                 </p>
             </div>
 

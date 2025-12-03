@@ -1,0 +1,91 @@
+# 4차 오류 대응 태스크 목록 (2025-12-03)
+
+### 관련 파일
+- `public/manifest.webmanifest` - PWA 매니페스트 정의
+- `app/manifest.ts`, `next.config.ts` - 매니페스트/헤더 설정
+- `src/components/forms/ReportForm.tsx` - 보고서 입력 폼
+- `src/lib/services/windyService.ts`, `src/lib/services/weatherService.ts` - Windy API 연동
+- `src/lib/services/publicDataService.ts` - 공공데이터 경보/관측소 파서
+- `src/lib/services/environmentService.ts`, `src/lib/services/reportInsightsService.ts` - 환경 인사이트 조립
+- `src/app/report/result/[id]/page.tsx` - 보고서 결과 페이지
+- `src/components/map/WindyMap.tsx` - Leaflet 의존 컴포넌트
+- `src/lib/supabaseClient.ts`, `src/hooks/useAuth.ts` - Supabase 인증 로직
+- `src/app/layout.tsx`, `src/app/page.tsx` - preload/Analytics 설정 관련
+
+## 작업
+- [ ] 1.0 PWA 매니페스트 404 해결 (중)
+	- [ ] 1.1 매니페스트 스펙 확정 및 `public/manifest.webmanifest` 작성
+		- [ ] 1.1.1 테스트 코드 작성
+		- [ ] 1.1.2 테스트 실행 및 검증
+		- [ ] 1.1.3 오류 수정 (필요 시)
+	- [ ] 1.2 Next.js 경로 노출 및 `app/manifest.ts` 반영
+		- [ ] 1.2.1 테스트 코드 작성
+		- [ ] 1.2.2 테스트 실행 및 검증
+		- [ ] 1.2.3 오류 수정 (필요 시)
+	- [ ] 1.3 로컬/모바일 PWA 설치 테스트로 200 응답 확인
+		- [ ] 1.3.1 테스트 코드 작성
+		- [ ] 1.3.2 테스트 실행 및 검증
+		- [ ] 1.3.3 오류 수정 (필요 시)
+- [ ] 2.0 Zod 종료 시간 검증 안정화 (상)
+	- [ ] 2.1 종료 시간 자동 입력 UX 개선 및 기본값 제공
+		- [ ] 2.1.1 테스트 코드 작성
+		- [ ] 2.1.2 테스트 실행 및 검증
+		- [ ] 2.1.3 오류 수정 (필요 시)
+	- [ ] 2.2 ISO 변환/검증 유틸 정비 및 폼 스키마 업데이트
+		- [ ] 2.2.1 테스트 코드 작성
+		- [ ] 2.2.2 테스트 실행 및 검증
+		- [ ] 2.2.3 오류 수정 (필요 시)
+- [ ] 3.0 Windy Point Forecast 400 대응 (상)
+	- [ ] 3.1 요청 payload/환경변수 점검 및 문서 비교
+		- [ ] 3.1.1 테스트 코드 작성
+		- [ ] 3.1.2 테스트 실행 및 검증
+		- [ ] 3.1.3 오류 수정 (필요 시)
+	- [ ] 3.2 API 실패 시 fallback 데이터 및 사용자 메시지 구현
+		- [ ] 3.2.1 테스트 코드 작성
+		- [ ] 3.2.2 테스트 실행 및 검증
+		- [ ] 3.2.3 오류 수정 (필요 시)
+- [ ] 4.0 공공데이터 경보 파서 TypeError 해결 (상)
+	- [ ] 4.1 `normalizeWarningTime` 입력 타입 가드 및 비정형 케이스 테스트
+		- [ ] 4.1.1 테스트 코드 작성
+		- [ ] 4.1.2 테스트 실행 및 검증
+		- [ ] 4.1.3 오류 수정 (필요 시)
+- [ ] 5.0 해경 관측소 API 404 대응 (중)
+	- [ ] 5.1 `coastGuardUrl` 파라미터/서비스키 검증 및 예외 핸들링
+		- [ ] 5.1.1 테스트 코드 작성
+		- [ ] 5.1.2 테스트 실행 및 검증
+		- [ ] 5.1.3 오류 수정 (필요 시)
+- [ ] 6.0 환경 인사이트 연쇄 실패 복원력 확보 (상)
+	- [ ] 6.1 `fetchEnvironmentalInsights` 개별 try-catch 및 UI degrade 시나리오 구현
+		- [ ] 6.1.1 테스트 코드 작성
+		- [ ] 6.1.2 테스트 실행 및 검증
+		- [ ] 6.1.3 오류 수정 (필요 시)
+- [ ] 7.0 Source map 파싱 경고 정리 (하)
+	- [ ] 7.1 문제 패키지 및 Turbopack 설정 점검, 필요 시 source map 비활성화
+		- [ ] 7.1.1 테스트 코드 작성
+		- [ ] 7.1.2 테스트 실행 및 검증
+		- [ ] 7.1.3 오류 수정 (필요 시)
+- [ ] 8.0 Leaflet `L` undefined 해결 (중)
+	- [ ] 8.1 Leaflet 의존 컴포넌트에 dynamic import 및 SSR 가드 추가
+		- [ ] 8.1.1 테스트 코드 작성
+		- [ ] 8.1.2 테스트 실행 및 검증
+		- [ ] 8.1.3 오류 수정 (필요 시)
+- [ ] 9.0 Supabase 세션 객체 보안 강화 (중)
+	- [ ] 9.1 `supabase.auth.getUser()` 기반 재검증 로직 도입 및 영향 범위 점검
+		- [ ] 9.1.1 테스트 코드 작성
+		- [ ] 9.1.2 테스트 실행 및 검증
+		- [ ] 9.1.3 오류 수정 (필요 시)
+- [ ] 10.0 Preload 미사용 경고 정리 (하)
+	- [ ] 10.1 Preload 링크 실사용 여부 검사 및 `as` 속성/타이밍 조정
+		- [ ] 10.1.1 테스트 코드 작성
+		- [ ] 10.1.2 테스트 실행 및 검증
+		- [ ] 10.1.3 오류 수정 (필요 시)
+- [ ] 11.0 Fast Refresh 과민 원인 진단 (중)
+	- [ ] 11.1 감시 경로/환경변수 동기화 규칙 정의 및 `next.config.ts` watch ignore 조정
+		- [ ] 11.1.1 테스트 코드 작성
+		- [ ] 11.1.2 테스트 실행 및 검증
+		- [ ] 11.1.3 오류 수정 (필요 시)
+- [ ] 12.0 Vercel Analytics 개발 로그 소거 (하)
+	- [ ] 12.1 개발 모드 Analytics 비활성화 옵션 적용 및 로그 감소 확인
+		- [ ] 12.1.1 테스트 코드 작성
+		- [ ] 12.1.2 테스트 실행 및 검증
+		- [ ] 12.1.3 오류 수정 (필요 시)

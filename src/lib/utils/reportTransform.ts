@@ -1,6 +1,6 @@
 import type { Database } from '@/types/database.types';
 import type { ReportRequest, ReportResponse, ReportStatus } from '@/types/api';
-import { reportSchema } from '@/lib/utils/validators';
+import { normalizeReportPayload } from '@/lib/utils/reportPayload';
 
 const REPORT_ID_PREFIX = 'RPT';
 const REPORT_ID_PADDING = 6;
@@ -11,19 +11,10 @@ export function buildReportIdentifier(createdAt: string, reportNo: number): stri
   return `${REPORT_ID_PREFIX}-${datePart}-${seq}`;
 }
 
-function normalizeStoredPayload(payload: unknown): ReportRequest {
-  const raw = typeof payload === 'object' && payload !== null ? payload : {};
-  const normalized = {
-    ...(raw as Record<string, unknown>),
-    notes: (raw as Record<string, unknown>).notes ?? undefined
-  };
-  return reportSchema.parse(normalized);
-}
-
 export function mapReportRowToResponse(
   row: Database['public']['Tables']['reports']['Row']
 ): ReportResponse {
-  const payload = normalizeStoredPayload(row.location_data);
+  const { payload } = normalizeReportPayload(row.location_data);
   const safetyScore = row.safety_score ?? 0;
 
   return {

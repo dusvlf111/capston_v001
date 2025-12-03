@@ -13,8 +13,8 @@ const baseRow: Database['public']['Tables']['reports']['Row'] = {
     },
     activity: {
       type: '카약',
-      startTime: '2025-11-20T01:00:00Z',
-      endTime: '2025-11-20T03:30:00Z',
+      startTime: '2025-11-20T01:00:00.000Z',
+      endTime: '2025-11-20T03:30:00.000Z',
       participants: 4
     },
     contact: {

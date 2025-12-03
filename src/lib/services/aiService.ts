@@ -1,12 +1,10 @@
-import OpenAI from 'openai';
 import type { ReportRequest } from '@/types/api';
 import type { MarineWeather } from './weatherService';
 import type { WeatherWarning, CoastGuardStation } from './publicDataService';
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-    dangerouslyAllowBrowser: true
-});
+const OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions';
+const PRIMARY_MODEL = 'gpt-5-mini-2025-08-07';
+const FALLBACK_MODEL = 'gpt-4o-mini';
 
 export interface AISafetyReport {
     summary: string;
@@ -35,7 +33,7 @@ export const generateSafetyReport = async (
             .join('\n') || ' 정보 없음';
 
         const prompt = `
-    You are a marine safety expert AI. Analyze the following maritime activity plan and environmental data to provide a **concise** safety report.
+    You are a marine safety expert AI. Analyze the following maritime activity plan and environmental data to provide a **concise** safety report. 한국어로 작성하세요.
 
     **Activity Details:**
     - Type: ${report.activity.type}
@@ -71,36 +69,74 @@ export const generateSafetyReport = async (
     }
     `;
 
-        let completion;
-        try {
-            completion = await openai.chat.completions.create({
-                model: "gpt-5-mini-2025-08-07",
-                messages: [
-                    { role: "system", content: "You are a helpful marine safety assistant." },
-                    { role: "user", content: prompt }
-                ],
-                response_format: { type: "json_object" }
-            });
-        } catch (error) {
-            console.warn('Primary model failed, falling back to gpt-4o-mini:', error);
-            completion = await openai.chat.completions.create({
-                model: "gpt-4o-mini",
-                messages: [
-                    { role: "system", content: "You are a helpful marine safety assistant." },
-                    { role: "user", content: prompt }
-                ],
-                response_format: { type: "json_object" }
-            });
-        }
-
-        const content = completion.choices[0].message.content;
+        const content = await requestCompletion(prompt);
         if (!content) return null;
 
-        return JSON.parse(content) as AISafetyReport;
+        try {
+            return JSON.parse(content) as AISafetyReport;
+        } catch (error) {
+            console.error('Failed to parse AI safety report JSON:', error);
+            return null;
+        }
 
     } catch (error) {
         console.error('Failed to generate AI safety report:', error);
         // Fallback or re-throw depending on requirements
         return null;
     }
+};
+
+interface ChatCompletionResponse {
+    choices: { message: { content: string | null } }[];
+}
+
+const callChatCompletion = async (model: string, prompt: string): Promise<string | null> => {
+    const response = await fetch(OPENAI_CHAT_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+            model,
+            messages: [
+                { role: 'system', content: 'You are a helpful marine safety assistant.' },
+                { role: 'user', content: prompt },
+            ],
+            response_format: { type: 'json_object' },
+        }),
+    });
+
+    if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}));
+        const message = errorBody?.error?.message || response.statusText;
+        throw new Error(`[${response.status}] ${message}`);
+    }
+
+    const data = (await response.json()) as ChatCompletionResponse;
+    return data.choices?.[0]?.message?.content ?? null;
+};
+
+const requestCompletion = async (prompt: string): Promise<string | null> => {
+    const models = [PRIMARY_MODEL, FALLBACK_MODEL];
+    for (const model of models) {
+        try {
+            const content = await callChatCompletion(model, prompt);
+            if (content) {
+                return content;
+            }
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            if (model === PRIMARY_MODEL) {
+                console.warn('Primary model failed, attempting fallback:', message);
+            } else {
+                if (message.includes('429')) {
+                    console.warn('OpenAI rate limit reached:', message);
+                } else {
+                    console.error('Fallback model failed:', message);
+                }
+            }
+        }
+    }
+    return null;
 };

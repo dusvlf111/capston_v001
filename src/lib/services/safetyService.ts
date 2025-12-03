@@ -129,15 +129,11 @@ export async function analyzeSafety(
     }
 
     const stations = context.stations ?? [];
-    let nearestDistance = stations
+    const sortedDistances = stations
         .map((station) => station.distance)
         .filter((distance): distance is number => typeof distance === 'number' && Number.isFinite(distance))
-        .sort((a, b) => a - b)[0];
-
-    if (nearestDistance === undefined && stations.length > 0) {
-        // 거리 데이터가 없다면 목록 중 하나라도 존재하므로 맵에서 직접 계산된 값이 없는 것으로 간주
-        nearestDistance = undefined;
-    }
+        .sort((a, b) => a - b);
+    const nearestDistance = sortedDistances.length > 0 ? sortedDistances[0] : undefined;
 
     if (nearestDistance === undefined) {
         applyDeduction(5, 'response', deductions, scoreRef);

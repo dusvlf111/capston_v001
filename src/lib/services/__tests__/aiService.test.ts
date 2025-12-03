@@ -1,27 +1,16 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterAll, beforeAll } from 'vitest';
 import { generateSafetyReport } from '../aiService';
 import type { ReportRequest } from '@/types/api';
 
-const { mockCreate } = vi.hoisted(() => ({
-    mockCreate: vi.fn(),
-}));
+const originalFetch = global.fetch;
+const mockFetch = vi.fn();
 
-vi.mock('openai', () => {
-    class MockOpenAI {
-        chat;
+beforeAll(() => {
+    global.fetch = mockFetch as unknown as typeof fetch;
+});
 
-        constructor() {
-            this.chat = {
-                completions: {
-                    create: mockCreate,
-                },
-            };
-        }
-    }
-
-    return {
-        default: MockOpenAI,
-    };
+afterAll(() => {
+    global.fetch = originalFetch;
 });
 
 const baseReport: ReportRequest = {
@@ -44,36 +33,40 @@ const baseReport: ReportRequest = {
 
 beforeEach(() => {
     vi.clearAllMocks();
+    mockFetch.mockReset();
+    delete process.env.OPENAI_API_KEY;
 });
 
 describe('generateSafetyReport', () => {
     it('returns null when API key is missing', async () => {
-        delete process.env.OPENAI_API_KEY;
         const result = await generateSafetyReport(baseReport, null, [], []);
         expect(result).toBeNull();
-        expect(mockCreate).not.toHaveBeenCalled();
+        expect(mockFetch).not.toHaveBeenCalled();
     });
 
     it('parses JSON result from OpenAI', async () => {
         process.env.OPENAI_API_KEY = 'test-key';
-        mockCreate.mockResolvedValue({
-            choices: [
-                {
-                    message: {
-                        content: JSON.stringify({
-                            summary: '이어지는 활동은 안전합니다.',
-                            riskLevel: 'LOW',
-                            riskFactors: ['가벼운 바람'],
-                            recommendations: ['출항 전 장비 점검'],
-                            weatherAnalysis: '바람 5m/s',
-                        }),
+        mockFetch.mockResolvedValue({
+            ok: true,
+            json: () => Promise.resolve({
+                choices: [
+                    {
+                        message: {
+                            content: JSON.stringify({
+                                summary: '이어지는 활동은 안전합니다.',
+                                riskLevel: 'LOW',
+                                riskFactors: ['가벼운 바람'],
+                                recommendations: ['출항 전 장비 점검'],
+                                weatherAnalysis: '바람 5m/s',
+                            }),
+                        },
                     },
-                },
-            ],
+                ],
+            }),
         });
 
         const result = await generateSafetyReport(baseReport, null, [], []);
         expect(result?.riskLevel).toBe('LOW');
-        expect(mockCreate).toHaveBeenCalledTimes(1);
+        expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 });
