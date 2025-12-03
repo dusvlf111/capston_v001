@@ -15,17 +15,17 @@ export const dynamic = "force-dynamic";
 export default async function ProfilePage() {
   const supabase = await createClient();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     redirect("/login?redirectTo=/profile");
   }
 
   const { data: profile, error } = await supabase
     .from("profiles")
     .select("id, user_id, full_name, phone, emergency_contact")
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .maybeSingle<ProfileRecord>();
 
   if (error) {

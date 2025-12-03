@@ -1,11 +1,29 @@
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+const mockTileLayerInstance = {
+    addTo: vi.fn(),
+    remove: vi.fn(),
+};
+
+const mockLeaflet = {
+    tileLayer: vi.fn(() => mockTileLayerInstance),
+    marker: vi.fn(() => ({
+        addTo: vi.fn().mockReturnThis(),
+        bindPopup: vi.fn().mockReturnThis(),
+        openPopup: vi.fn(),
+    })),
+};
+
+vi.mock('leaflet', () => ({
+    default: mockLeaflet,
+}));
+
 import WindyMap from './WindyMap';
 
 describe('WindyMap', () => {
     let mockMap: any;
     let mockWindyAPI: any;
-    let mockTileLayer: any;
 
     beforeEach(() => {
         // Clean up any existing scripts
@@ -15,11 +33,16 @@ describe('WindyMap', () => {
         // Mock map instance
         mockMap = {
             removeLayer: vi.fn(),
+            hasLayer: vi.fn(),
+            setView: vi.fn(),
         };
 
         // Mock Windy API
         mockWindyAPI = {
             map: mockMap,
+            store: {
+                set: vi.fn(),
+            },
         };
 
         // Mock window.windyInit with callback execution
@@ -28,27 +51,20 @@ describe('WindyMap', () => {
             callback(mockWindyAPI);
         });
 
-        // Mock Leaflet tile layer
-        mockTileLayer = {
-            addTo: vi.fn(),
-            remove: vi.fn(),
-        };
-
-        // Mock window.L
-        window.L = {
-            tileLayer: vi.fn().mockReturnValue(mockTileLayer),
-        };
-
         // Mock environment variable
         process.env.NEXT_PUBLIC_WINDY_MAP_KEY = 'test-api-key';
+        delete window.L;
+        mockLeaflet.tileLayer.mockClear();
+        mockTileLayerInstance.addTo.mockClear();
+        mockTileLayerInstance.remove.mockClear();
 
     });
 
     afterEach(() => {
         vi.restoreAllMocks();
-        // Clean up scripts
         const scripts = document.querySelectorAll('script[src="https://api.windy.com/assets/map-forecast/libBoot.js"]');
         scripts.forEach(script => script.remove());
+        delete window.windyInit;
     });
 
     it('renders the map container', () => {
@@ -56,14 +72,16 @@ describe('WindyMap', () => {
         expect(container.firstChild).toBeInTheDocument();
     });
 
-    // Script loading tests removed due to happy-dom limitations with external scripts
-    // The script loading logic was not modified in this task.
-
     it('renders map ref div with correct structure', () => {
         const { container } = render(<WindyMap />);
 
         const mapRefDiv = container.querySelector('#windy');
         expect(mapRefDiv).toBeInTheDocument();
         expect(mapRefDiv?.parentElement).toHaveClass('relative', 'w-full', 'h-full');
+    });
+
+    it('shows loading overlay while Leaflet is preparing', () => {
+        const { getByText } = render(<WindyMap />);
+        expect(getByText('지도 데이터를 불러오는 중입니다...')).toBeInTheDocument();
     });
 });

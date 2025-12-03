@@ -59,10 +59,10 @@ const emergencyContacts = [
 export default async function ReportDetailPage({ params }: PageProps) {
   const supabase = await createClient();
   const {
-    data: { session }
-  } = await supabase.auth.getSession();
+    data: { user }
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     redirect(`/login?redirectTo=/report/${params.id}`);
   }
 
@@ -74,7 +74,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
 
   const reportRow = data as Database["public"]["Tables"]["reports"]["Row"] | null;
 
-  if (error || !reportRow || reportRow.user_id !== session.user.id) {
+  if (error || !reportRow || reportRow.user_id !== user.id) {
     notFound();
   }
 

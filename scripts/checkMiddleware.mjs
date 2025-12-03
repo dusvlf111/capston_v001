@@ -13,7 +13,7 @@ const content = fs.readFileSync(middlewarePath, 'utf8');
 const requiredSnippets = [
   'export async function middleware',
   'createSupabaseMiddlewareClient',
-  'supabase.auth.getSession',
+  'supabase.auth.getUser',
   'PROTECTED_PREFIXES',
   'export const config',
 ];

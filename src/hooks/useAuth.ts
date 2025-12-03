@@ -27,31 +27,31 @@ export function useAuth(): UseAuthResult {
     setError(null);
 
     const {
-      data: { session },
-      error: sessionError
-    } = await supabase.auth.getSession();
+      data: { user: currentUser },
+      error: userError
+    } = await supabase.auth.getUser();
 
-    if (sessionError) {
-      setError(sessionError.message);
+    if (userError) {
+      setError(userError.message);
       setUser(null);
       setProfile(null);
       setIsLoading(false);
       return;
     }
 
-    if (!session) {
+    if (!currentUser) {
       setUser(null);
       setProfile(null);
       setIsLoading(false);
       return;
     }
 
-    setUser(session.user);
+    setUser(currentUser);
 
     const { data, error: profileError } = await supabase
       .from("profiles")
       .select("*")
-      .eq("user_id", session.user.id)
+      .eq("user_id", currentUser.id)
       .maybeSingle<ProfileRow>();
 
     if (profileError) {

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { fetchEnvironmentalInsights } from '../environmentService';
 import { fetchMarineWeather } from '../weatherService';
 import { fetchWeatherWarnings, fetchCoastGuardStations } from '../publicDataService';
@@ -17,6 +17,10 @@ const mockedWarnings = fetchWeatherWarnings as unknown as ReturnType<typeof vi.f
 const mockedStations = fetchCoastGuardStations as unknown as ReturnType<typeof vi.fn>;
 
 describe('environmentService.fetchEnvironmentalInsights', () => {
+    afterEach(() => {
+        vi.resetAllMocks();
+    });
+
     it('aggregates weather, warnings, and station data', async () => {
         mockedWeather.mockResolvedValue({
             time: new Date().toISOString(),
@@ -38,6 +42,19 @@ describe('environmentService.fetchEnvironmentalInsights', () => {
         expect(insights.weather?.provider).toBe('windy');
         expect(insights.warnings).toHaveLength(1);
         expect(insights.stations[0].name).toBe('부산해경');
+        expect(insights.fetchedAt).toBeTruthy();
+    });
+
+    it('gracefully degrades when dependencies fail', async () => {
+        mockedWeather.mockRejectedValueOnce(new Error('weather offline'));
+        mockedWarnings.mockRejectedValueOnce(new Error('warning API down'));
+        mockedStations.mockRejectedValueOnce(new Error('station API down'));
+
+        const insights = await fetchEnvironmentalInsights({ lat: 35.1, lon: 129.1 });
+
+        expect(insights.weather).toBeNull();
+        expect(insights.warnings).toEqual([]);
+        expect(insights.stations).toEqual([]);
         expect(insights.fetchedAt).toBeTruthy();
     });
 });

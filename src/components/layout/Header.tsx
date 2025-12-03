@@ -12,10 +12,10 @@ const NAV_ITEMS = [
 export default async function Header() {
   const supabase = await createClient();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const userEmail = session?.user?.email;
+  const userEmail = user?.email;
 
   return (
     <header className="w-full border-b border-slate-800 bg-slate-900/60 backdrop-blur">
@@ -33,7 +33,7 @@ export default async function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
-          {session ? (
+          {user ? (
             <>
               {userEmail && (
                 <span className="hidden text-xs font-medium text-slate-300 md:inline">

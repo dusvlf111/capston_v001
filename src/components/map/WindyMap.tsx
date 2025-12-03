@@ -3,8 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 
-
-
 type MapLayer = 'wind' | 'temp' | 'clouds' | 'rain' | 'waves';
 
 interface SearchResult {
@@ -13,6 +11,30 @@ interface SearchResult {
     lon: string;
 }
 
+declare global {
+    interface Window {
+        L?: any;
+        windyInit?: (options: Record<string, unknown>, callback: (api: any) => void) => void;
+    }
+}
+
+const WINDY_SCRIPT_SRC = 'https://api.windy.com/assets/map-forecast/libBoot.js';
+const isBrowser = typeof window !== 'undefined';
+
+const loadLeafletLibrary = async (): Promise<any | null> => {
+    if (!isBrowser) return null;
+    if (window.L) return window.L;
+    try {
+        const leafletModule = await import('leaflet');
+        const L = leafletModule.default ?? leafletModule;
+        window.L = L;
+        return L;
+    } catch (error) {
+        console.error('Failed to load Leaflet library', error);
+        return null;
+    }
+};
+
 export default function WindyMap() {
     const [showOSM, setShowOSM] = useState(false);
     const [showKHOA, setShowKHOA] = useState(false);
@@ -20,6 +42,7 @@ export default function WindyMap() {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const [isSearching, setIsSearching] = useState(false);
+    const [leafletReady, setLeafletReady] = useState(false);
 
     const osmLayerRef = useRef<any>(null);
     const khoaLayerRef = useRef<any>(null);
@@ -28,43 +51,10 @@ export default function WindyMap() {
     const markerRef = useRef<any>(null);
     const isScriptLoadedRef = useRef(false);
 
-    // Initialize Windy Map
-    useEffect(() => {
-        // Prevent double initialization
-        if (isScriptLoadedRef.current) return;
-
-        const existingScript = document.querySelector('script[src="https://api.windy.com/assets/map-forecast/libBoot.js"]');
-
-        if (existingScript) {
-            // Script already exists, try to initialize if windyInit is available
-            if (window.windyInit && !mapInstanceRef.current) {
-                initializeWindy();
-            }
+    const initializeWindy = () => {
+        if (!isBrowser || mapInstanceRef.current || !window.windyInit) {
             return;
         }
-
-        const script = document.createElement('script');
-        script.src = 'https://api.windy.com/assets/map-forecast/libBoot.js';
-        script.async = true;
-        script.onload = () => {
-            isScriptLoadedRef.current = true;
-            initializeWindy();
-        };
-        script.onerror = () => {
-            console.error('Failed to load Windy script');
-        };
-        document.body.appendChild(script);
-
-        return () => {
-            // Cleanup marker if exists
-            if (markerRef.current && mapInstanceRef.current) {
-                mapInstanceRef.current.removeLayer(markerRef.current);
-            }
-        };
-    }, []);
-
-    const initializeWindy = () => {
-        if (!window.windyInit) return;
 
         const windyKey = process.env.NEXT_PUBLIC_WINDY_MAP_KEY;
         if (!windyKey) {
@@ -86,9 +76,57 @@ export default function WindyMap() {
         });
     };
 
-    // Toggle OSM Layer
+    const loadWindyScript = () => {
+        if (!isBrowser || mapInstanceRef.current) return;
+
+        const existingScript = document.querySelector<HTMLScriptElement>(`script[src="${WINDY_SCRIPT_SRC}"]`);
+        if (existingScript) {
+            if (window.windyInit) {
+                initializeWindy();
+            } else {
+                existingScript.addEventListener('load', () => initializeWindy(), { once: true });
+            }
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src = WINDY_SCRIPT_SRC;
+        script.async = true;
+        script.onload = () => {
+            isScriptLoadedRef.current = true;
+            initializeWindy();
+        };
+        script.onerror = () => {
+            console.error('Failed to load Windy script');
+        };
+        document.body.appendChild(script);
+    };
+
     useEffect(() => {
-        if (!mapInstanceRef.current || !window.L) return;
+        if (!isBrowser) return;
+        let disposed = false;
+
+        const setup = async () => {
+            const leaflet = await loadLeafletLibrary();
+            if (!leaflet || disposed) {
+                return;
+            }
+            setLeafletReady(true);
+            loadWindyScript();
+        };
+
+        setup();
+
+        return () => {
+            disposed = true;
+            if (markerRef.current && mapInstanceRef.current) {
+                mapInstanceRef.current.removeLayer(markerRef.current);
+            }
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!mapInstanceRef.current || !leafletReady || !window.L) return;
 
         if (showOSM) {
             if (!osmLayerRef.current) {
@@ -102,16 +140,13 @@ export default function WindyMap() {
                 );
             }
             osmLayerRef.current.addTo(mapInstanceRef.current);
-        } else {
-            if (osmLayerRef.current && mapInstanceRef.current.hasLayer(osmLayerRef.current)) {
-                mapInstanceRef.current.removeLayer(osmLayerRef.current);
-            }
+        } else if (osmLayerRef.current && mapInstanceRef.current.hasLayer(osmLayerRef.current)) {
+            mapInstanceRef.current.removeLayer(osmLayerRef.current);
         }
-    }, [showOSM]);
+    }, [showOSM, leafletReady]);
 
-    // Toggle KHOA Layer
     useEffect(() => {
-        if (!mapInstanceRef.current || !window.L) return;
+        if (!mapInstanceRef.current || !leafletReady || !window.L) return;
 
         if (showKHOA) {
             if (!khoaLayerRef.current) {
@@ -120,26 +155,21 @@ export default function WindyMap() {
                     console.warn('NEXT_PUBLIC_KHOA_OPENSEA_KEY is not set. Unable to render KHOA layer.');
                     return;
                 }
-                // Note: KHOA API might require HTTP or specific referrers. 
-                // Using the URL pattern provided in the guide.
                 const seaMapUrl = `http://www.khoa.go.kr/oceanmap/otile/tms/kov/{z}/{y}/{x}.png?apikey=${kjoKey}`;
 
                 khoaLayerRef.current = window.L.tileLayer(seaMapUrl, {
                     maxZoom: 18,
                     opacity: 0.6,
                     zIndex: 100,
-                    attribution: '© National Hydrographic and Oceanographic Agency'
+                    attribution: '© National Hydrographic and Oceanographic Agency',
                 });
             }
             khoaLayerRef.current.addTo(mapInstanceRef.current);
-        } else {
-            if (khoaLayerRef.current && mapInstanceRef.current.hasLayer(khoaLayerRef.current)) {
-                mapInstanceRef.current.removeLayer(khoaLayerRef.current);
-            }
+        } else if (khoaLayerRef.current && mapInstanceRef.current.hasLayer(khoaLayerRef.current)) {
+            mapInstanceRef.current.removeLayer(khoaLayerRef.current);
         }
-    }, [showKHOA]);
+    }, [showKHOA, leafletReady]);
 
-    // Change Windy Layer
     useEffect(() => {
         if (!windyAPIRef.current || !windyAPIRef.current.store) return;
 
@@ -154,7 +184,6 @@ export default function WindyMap() {
         windyAPIRef.current.store.set('overlay', layerMap[selectedLayer]);
     }, [selectedLayer]);
 
-    // Address Search using Nominatim API
     const handleSearch = async () => {
         if (!searchQuery.trim()) return;
 
@@ -173,33 +202,27 @@ export default function WindyMap() {
         }
     };
 
-    // Navigate to selected location
     const handleSelectLocation = (result: SearchResult) => {
-        if (!mapInstanceRef.current || !window.L) return;
+        if (!mapInstanceRef.current || !leafletReady || !window.L) return;
 
         const lat = parseFloat(result.lat);
         const lon = parseFloat(result.lon);
 
-        // Pan and zoom to location
         mapInstanceRef.current.setView([lat, lon], 12);
 
-        // Remove existing marker if any
         if (markerRef.current) {
             mapInstanceRef.current.removeLayer(markerRef.current);
         }
 
-        // Add new marker
         markerRef.current = window.L.marker([lat, lon]).addTo(mapInstanceRef.current);
         markerRef.current.bindPopup(result.display_name).openPopup();
 
-        // Clear search
         setSearchResults([]);
         setSearchQuery('');
     };
 
-    // Get current location
     const handleCurrentLocation = () => {
-        if (!mapInstanceRef.current) return;
+        if (!mapInstanceRef.current || !leafletReady) return;
 
         if ('geolocation' in navigator) {
             navigator.geolocation.getCurrentPosition(
@@ -209,12 +232,10 @@ export default function WindyMap() {
 
                     mapInstanceRef.current.setView([lat, lon], 12);
 
-                    // Remove existing marker
                     if (markerRef.current) {
                         mapInstanceRef.current.removeLayer(markerRef.current);
                     }
 
-                    // Add marker at current location
                     if (window.L) {
                         markerRef.current = window.L.marker([lat, lon]).addTo(mapInstanceRef.current);
                         markerRef.current.bindPopup('Your Current Location').openPopup();
@@ -232,19 +253,36 @@ export default function WindyMap() {
 
     return (
         <div className="relative w-full h-full">
-            {/* Windy map container - ID required by Windy API */}
             <div id="windy" className="w-full h-full" />
+            {!leafletReady && (
+                <div className="absolute inset-0 flex items-center justify-center bg-slate-950/60 text-sm text-slate-200">
+                    지도 데이터를 불러오는 중입니다...
+                </div>
+            )}
 
-            {/* Layer Controls */}
-            <div className="absolute bottom-8 right-4 z-1000 flex flex-col gap-2">
+            <div className="absolute bottom-8 right-4 z-[1000] flex flex-col gap-2">
                 <button
                     onClick={() => setShowKHOA(!showKHOA)}
-                    className={`px-4 py-2 rounded-lg shadow-md text-sm font-medium transition-colors ${showKHOA
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-white text-gray-700 hover:bg-gray-50'
-                        }`}
+                    className={`px-4 py-2 rounded-lg shadow-md text-sm font-medium transition-colors ${
+                        showKHOA ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white text-gray-700 hover:bg-gray-50'
+                    }`}
                 >
                     🌊 바다지도 {showKHOA ? 'ON' : 'OFF'}
+                </button>
+                <button
+                    onClick={() => setShowOSM(!showOSM)}
+                    className={`px-4 py-2 rounded-lg shadow-md text-sm font-medium transition-colors ${
+                        showOSM ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-white text-gray-700 hover:bg-gray-50'
+                    }`}
+                >
+                    🗺️ OSM {showOSM ? 'ON' : 'OFF'}
+                </button>
+                <button
+                    onClick={handleCurrentLocation}
+                    className="px-4 py-2 rounded-lg shadow-md text-sm font-medium bg-white text-gray-700 hover:bg-gray-50"
+                    disabled={!leafletReady}
+                >
+                    📍 현재 위치로 이동
                 </button>
             </div>
         </div>

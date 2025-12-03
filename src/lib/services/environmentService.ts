@@ -19,10 +19,25 @@ export const fetchEnvironmentalInsights = async (
 ): Promise<EnvironmentalInsights> => {
     const { lat, lon, warningStationId } = options;
 
+    const weatherPromise = fetchMarineWeather(lat, lon).catch(error => {
+        console.error('EnvironmentalInsights: marine weather fetch failed', error);
+        return null;
+    });
+
+    const warningsPromise = fetchWeatherWarnings(warningStationId).catch(error => {
+        console.error('EnvironmentalInsights: weather warnings fetch failed', error);
+        return [] as WeatherWarning[];
+    });
+
+    const stationsPromise = fetchCoastGuardStations(lat, lon).catch(error => {
+        console.error('EnvironmentalInsights: coast guard stations fetch failed', error);
+        return [] as CoastGuardStation[];
+    });
+
     const [weather, warnings, stations] = await Promise.all([
-        fetchMarineWeather(lat, lon),
-        fetchWeatherWarnings(warningStationId),
-        fetchCoastGuardStations(lat, lon),
+        weatherPromise,
+        warningsPromise,
+        stationsPromise,
     ]);
 
     return {

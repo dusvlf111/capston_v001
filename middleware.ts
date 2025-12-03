@@ -17,16 +17,17 @@ export async function middleware(request: NextRequest) {
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  if (!session && requiresAuth(pathname)) {
+  if ((!user || authError) && requiresAuth(pathname)) {
     const redirectUrl = new URL(AUTH_PATH, request.url);
     redirectUrl.searchParams.set('redirectTo', pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (session && pathname === AUTH_PATH) {
+  if (user && pathname === AUTH_PATH) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
