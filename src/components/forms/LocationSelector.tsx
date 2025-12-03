@@ -242,8 +242,9 @@ export default function LocationSelector({ control, className }: LocationSelecto
           onClick={handleUseCurrentLocation}
           isLoading={isLocating}
           data-testid="use-current-location"
+          aria-label="현재 위치 사용"
         >
-          📍 현재 위치 사용
+          <span aria-hidden="true">📍</span> 현재 위치 사용
         </Button>
       </div>
 

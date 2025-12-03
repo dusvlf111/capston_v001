@@ -5,6 +5,12 @@ import ReportForm from '../ReportForm';
 import type { ReportResponse } from '@/types/api';
 import { useController } from 'react-hook-form';
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
+}));
+
 vi.mock('../LocationSelector', () => ({
   __esModule: true,
   default: ({ control }: any) => {

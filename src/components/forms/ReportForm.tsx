@@ -14,9 +14,13 @@ import type { ReportResponse } from "@/types/api";
 import { ACTIVITY_TYPES } from "@/types/api";
 import type { ReportSchema } from "@/lib/utils/validators";
 import { reportSchema } from "@/lib/utils/validators";
+import { getDefaultActivityTimes } from "@/lib/utils/activityTime";
 import { cn } from "@/lib/utils/cn";
 
-const buildDefaultValues = (): ReportSchema => ({
+const buildDefaultValues = (): ReportSchema => {
+  const { startTime, endTime } = getDefaultActivityTimes();
+
+  return {
   location: {
     name: "",
     coordinates: {
@@ -26,8 +30,8 @@ const buildDefaultValues = (): ReportSchema => ({
   },
   activity: {
     type: ACTIVITY_TYPES[0],
-    startTime: "",
-    endTime: "",
+    startTime,
+    endTime,
     participants: 1,
   },
   contact: {
@@ -37,7 +41,8 @@ const buildDefaultValues = (): ReportSchema => ({
   },
   companions: [],
   notes: "",
-});
+  };
+};
 
 export default function ReportForm({ className }: { className?: string }) {
   const router = useRouter();

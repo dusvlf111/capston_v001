@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useForm } from 'react-hook-form';
 import ActivitySelector from '../ActivitySelector';
@@ -52,7 +52,7 @@ describe('ActivitySelector', () => {
     expect(kayakingButton).toHaveAttribute('aria-pressed', 'true');
   });
 
-  it('validates time ordering', async () => {
+  it('auto-adjusts end time when it is before start', async () => {
     const user = userEvent.setup();
     renderSelector();
 
@@ -66,8 +66,11 @@ describe('ActivitySelector', () => {
     await user.clear(endInput);
     await user.type(endInput, '2025-05-05T09:00');
 
-    const messages = await screen.findAllByText('종료 시간은 시작 시간 이후여야 합니다.');
-    expect(messages.length).toBeGreaterThan(0);
+    await waitFor(() => {
+      expect(endInput).toHaveValue('2025-05-05T11:00');
+    });
+
+    expect(screen.queryByText('종료 시간은 시작 시간 이후여야 합니다.')).not.toBeInTheDocument();
   });
 
   it('updates participants count', async () => {

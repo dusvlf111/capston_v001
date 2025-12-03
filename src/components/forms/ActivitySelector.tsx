@@ -8,23 +8,33 @@ import Input from "@/components/ui/Input";
 import { ACTIVITY_TYPES } from "@/types/api";
 import type { ReportSchema } from "@/lib/utils/validators";
 import { cn } from "@/lib/utils/cn";
+import { ensureEndTimeAfterStart } from "@/lib/utils/activityTime";
 
 interface ActivitySelectorProps {
   control: Control<ReportSchema>;
   className?: string;
 }
 
+const pad = (input: number) => input.toString().padStart(2, "0");
+
 const formatDateTimeValue = (value?: string) => {
   if (!value) return "";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-  return date.toISOString().slice(0, 16);
+
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
 const toISOStringFromLocal = (value: string) => {
   if (!value) return undefined;
   const normalized = value.length === 16 ? `${value}:00` : value;
-  const date = new Date(`${normalized}Z`);
+  const date = new Date(normalized);
   if (Number.isNaN(date.getTime())) {
     return undefined;
   }
@@ -65,20 +75,30 @@ export default function ActivitySelector({ control, className }: ActivitySelecto
   }, [endTimeField.value]);
 
   useEffect(() => {
-    if (!startTimeField.value || !endTimeField.value) {
+    if (!startTimeField.value) {
       setTimeError(null);
       return;
     }
 
-    const start = new Date(startTimeField.value).getTime();
-    const end = new Date(endTimeField.value).getTime();
+    const sanitizedEnd = ensureEndTimeAfterStart(startTimeField.value, endTimeField.value);
 
+    if (sanitizedEnd && sanitizedEnd !== endTimeField.value) {
+      endTimeField.onChange(sanitizedEnd);
+    }
+
+    if (!sanitizedEnd) {
+      setTimeError("종료 시간을 입력하세요.");
+      return;
+    }
+
+    const start = new Date(startTimeField.value).getTime();
+    const end = new Date(sanitizedEnd).getTime();
     if (Number.isFinite(start) && Number.isFinite(end) && end <= start) {
       setTimeError("종료 시간은 시작 시간 이후여야 합니다.");
     } else {
       setTimeError(null);
     }
-  }, [startTimeField.value, endTimeField.value]);
+  }, [startTimeField.value, endTimeField.value, endTimeField]);
 
   const activityButtons = useMemo(() => ACTIVITY_TYPES, []);
 
