@@ -60,20 +60,41 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
     return R * c;
 };
 
-const normalizeWarningTime = (value?: string): string => {
-    if (!value) return new Date().toISOString();
-    if (/^\d{12}$/.test(value)) {
-        const year = value.slice(0, 4);
-        const month = value.slice(4, 6);
-        const day = value.slice(6, 8);
-        const hour = value.slice(8, 10);
-        const minute = value.slice(10, 12);
+const nowIso = () => new Date().toISOString();
+
+const coerceWarningValue = (value: unknown): string | null => {
+    if (value instanceof Date) {
+        return value.toISOString();
+    }
+    if (typeof value === 'number') {
+        return String(value);
+    }
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        return trimmed.length > 0 ? trimmed : null;
+    }
+    return null;
+};
+
+const normalizeWarningTime = (value?: unknown): string => {
+    const source = coerceWarningValue(value);
+    if (!source) {
+        return nowIso();
+    }
+
+    if (/^\d{12}$/.test(source)) {
+        const year = source.slice(0, 4);
+        const month = source.slice(4, 6);
+        const day = source.slice(6, 8);
+        const hour = source.slice(8, 10);
+        const minute = source.slice(10, 12);
         const iso = `${year}-${month}-${day}T${hour}:${minute}:00+09:00`;
         const date = new Date(iso);
-        return Number.isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+        return Number.isNaN(date.getTime()) ? nowIso() : date.toISOString();
     }
-    const parsed = new Date(value);
-    return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
+
+    const parsed = new Date(source);
+    return Number.isNaN(parsed.getTime()) ? nowIso() : parsed.toISOString();
 };
 
 const parseWarningItems = (items: any): WeatherWarning[] => {

@@ -45,12 +45,46 @@ describe('publicDataService', () => {
         expect(mockedAxios.get).toHaveBeenCalledTimes(1);
         expect(warnings).toHaveLength(1);
         expect(warnings[0].title).toBe('태풍 주의보');
-        expect(warnings[0].tmFc).toMatch(/2025/);
+        expect(new Date(warnings[0].tmFc).getUTCFullYear()).toBe(2025);
 
         // Cached call should not hit API again
         const cached = await fetchWeatherWarnings(159);
         expect(cached).toHaveLength(1);
         expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('handles numeric and invalid tmFc values safely', async () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date('2025-02-02T00:00:00Z'));
+        process.env.DATA_PORTAL_API_KEY = 'encoded%2Bkey';
+        mockedAxios.get.mockResolvedValueOnce({
+            data: {
+                response: {
+                    body: {
+                        items: {
+                            item: [
+                                {
+                                    title: '강풍 경보',
+                                    tmFc: 202502011530,
+                                },
+                                {
+                                    title: '한파 주의보',
+                                    tmFc: { invalid: true },
+                                },
+                            ],
+                        },
+                    },
+                },
+            },
+        });
+
+        const warnings = await fetchWeatherWarnings(105);
+
+        expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+        expect(warnings).toHaveLength(2);
+        expect(new Date(warnings[0].tmFc).getUTCFullYear()).toBe(2025);
+        expect(warnings[1].tmFc).toBe('2025-02-02T00:00:00.000Z');
+        vi.useRealTimers();
     });
 
     it('fetches and sorts coast guard stations by distance', async () => {

@@ -19,20 +19,28 @@ interface SearchResult {
   lon: string;
 }
 
+interface LeafletMap {
+  setView: (coords: [number, number], zoom: number) => void;
+  remove: () => void;
+}
+
+interface LeafletMarker {
+  remove: () => void;
+}
+
 const formatCoordinate = (value: unknown) =>
   typeof value === "number" && Number.isFinite(value) ? value.toFixed(6) : "";
 
 export default function LocationSelector({ control, className }: LocationSelectorProps) {
   const [geoError, setGeoError] = useState<string | null>(null);
+  const mapRef = useRef<LeafletMap | null>(null);
+  const markerRef = useRef<LeafletMarker | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
-
-  const mapRef = useRef<any>(null);
-  const markerRef = useRef<any>(null);
-  const mapContainerRef = useRef<HTMLDivElement>(null);
 
   const {
     field: locationNameField,
@@ -321,7 +329,7 @@ export default function LocationSelector({ control, className }: LocationSelecto
         data-testid="map-preview"
         className={cn(
           "overflow-hidden rounded-2xl border border-slate-800",
-          hasCoordinates ? "h-64" : "h-40 flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-950"
+          hasCoordinates ? "h-64" : "h-40 flex items-center justify-center bg-linear-to-br from-slate-900 to-slate-950"
         )}
       >
         {hasCoordinates ? (
