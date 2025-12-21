@@ -58,7 +58,7 @@ export default function DashboardStats({
           <span className="text-2xl">📅</span>
         </div>
         <p className="text-4xl font-bold text-green-400 mb-1">
-          {formatActivityDate(lastActivityDate)}
+          {formatDate(lastActivityDate)}
         </p>
         <p className="text-sm text-slate-400">마지막 보고 일시</p>
       </div>
