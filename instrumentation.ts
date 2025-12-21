@@ -27,24 +27,34 @@ export const shouldSuppressSourceMapWarning = (warning: unknown): boolean => {
 };
 
 export const applySourceMapWarningFilter = (): void => {
+    // Skip in Edge Runtime where process.emitWarning is not available
+    if (typeof process === 'undefined' || typeof process.emitWarning !== 'function') {
+        return;
+    }
+
     const proc = process as PatchedProcess;
     if (proc[PATCH_FLAG]) {
         return;
     }
 
-    const originalEmit = process.emitWarning.bind(process);
-    const filteredEmit: typeof process.emitWarning = ((warning: any, ...args: any[]) => {
-        if (shouldSuppressSourceMapWarning(warning)) {
-            if (process.env.NODE_ENV !== 'production') {
-                console.debug?.('[source-map]', 'Suppressed invalid source map warning');
+    try {
+        const originalEmit = process.emitWarning.bind(process);
+        const filteredEmit: typeof process.emitWarning = ((warning: any, ...args: any[]) => {
+            if (shouldSuppressSourceMapWarning(warning)) {
+                if (process.env.NODE_ENV !== 'production') {
+                    console.debug?.('[source-map]', 'Suppressed invalid source map warning');
+                }
+                return false;
             }
-            return false;
-        }
-        return originalEmit(warning, ...args);
-    }) as typeof process.emitWarning;
+            return originalEmit(warning, ...args);
+        }) as typeof process.emitWarning;
 
-    proc[PATCH_FLAG] = { originalEmitWarning: originalEmit };
-    (process as any).emitWarning = filteredEmit;
+        proc[PATCH_FLAG] = { originalEmitWarning: originalEmit };
+        (process as any).emitWarning = filteredEmit;
+    } catch (error) {
+        // Silently fail in environments where this is not supported
+        console.warn('Could not apply source map warning filter:', error);
+    }
 };
 
 export async function register(): Promise<void> {
