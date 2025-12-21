@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { ReportResponse } from "@/types/api";
+import { formatDateTime } from "@/lib/utils/dateFormat";
 
 interface RecentReportsProps {
   reports: ReportResponse[];
@@ -25,17 +26,6 @@ export default function RecentReports({ reports }: RecentReportsProps) {
         {config.label}
       </span>
     );
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
   };
 
   if (reports.length === 0) {
@@ -112,7 +102,7 @@ export default function RecentReports({ reports }: RecentReportsProps) {
                       d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                   </svg>
-                  {formatDate(report.submittedAt)}
+                  {formatDateTime(report.submittedAt)}
                 </span>
                 {report.location.coordinates.latitude && report.location.coordinates.longitude && (
                   <span className="flex items-center gap-1">

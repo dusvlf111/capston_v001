@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/types/database.types";
 import { mapReportRowToResponse } from "@/lib/utils/reportTransform";
+import { formatDateTimeShort } from "@/lib/utils/dateFormat";
 import {
   matchRegionByLocation,
   mockSafetyZones,
@@ -28,16 +29,6 @@ const badgeTokens: Record<string, string> = {
   CAUTION: "bg-amber-500/10 border-amber-500/40",
   DENIED: "bg-rose-500/10 border-rose-500/40"
 };
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit"
-  }).format(new Date(value));
-}
 
 function getSafetyInsight(locationName: string) {
   const region = matchRegionByLocation(locationName);
@@ -87,7 +78,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
         <div>
           <p className="text-sm uppercase tracking-[0.3em] text-sky-400">자율 신고 결과</p>
           <h1 className="text-4xl font-semibold text-slate-50">접수 번호 {report.reportId}</h1>
-          <p className="text-slate-400">제출 일시 {formatDate(report.submittedAt)}</p>
+          <p className="text-slate-400">제출 일시 {formatDateTimeShort(report.submittedAt)}</p>
         </div>
         <Link
           href="/report/history"
@@ -109,10 +100,10 @@ export default async function ReportDetailPage({ params }: PageProps) {
         <div className="rounded-3xl border border-slate-800 bg-slate-950/60 p-6">
           <p className="text-sm text-slate-400">활동 시간</p>
           <p className="font-semibold text-slate-50">
-            {formatDate(report.activity.startTime)}
+            {formatDateTimeShort(report.activity.startTime)}
           </p>
           {report.activity.endTime && (
-            <p className="text-sm text-slate-500">~ {formatDate(report.activity.endTime)}</p>
+            <p className="text-sm text-slate-500">~ {formatDateTimeShort(report.activity.endTime)}</p>
           )}
           <p className="mt-4 text-sm text-slate-400">참가자 수</p>
           <p className="text-3xl font-semibold text-slate-50">{report.activity.participants}명</p>
@@ -144,12 +135,12 @@ export default async function ReportDetailPage({ params }: PageProps) {
           <dl className="mt-4 space-y-2 text-sm text-slate-300">
             <div className="flex justify-between">
               <dt>시작</dt>
-              <dd>{formatDate(report.activity.startTime)}</dd>
+              <dd>{formatDateTimeShort(report.activity.startTime)}</dd>
             </div>
             {report.activity.endTime && (
               <div className="flex justify-between">
                 <dt>종료</dt>
-                <dd>{formatDate(report.activity.endTime)}</dd>
+                <dd>{formatDateTimeShort(report.activity.endTime)}</dd>
               </div>
             )}
             <div className="flex justify-between">

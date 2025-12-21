@@ -2,18 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { mapReportRowToResponse } from "@/lib/utils/reportTransform";
+import { formatDateTimeShort } from "@/lib/utils/dateFormat";
 
 export const dynamic = "force-dynamic";
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit"
-  }).format(new Date(value));
-}
 
 export default async function ReportHistoryPage() {
   const supabase = await createClient();
@@ -61,7 +52,7 @@ export default async function ReportHistoryPage() {
               <div>
                 <p className="text-sm uppercase tracking-[0.3em] text-slate-500">{report.reportId}</p>
                 <h2 className="text-2xl font-semibold text-slate-50">{report.location.name}</h2>
-                <p className="text-sm text-slate-400">{formatDate(report.submittedAt)}</p>
+                <p className="text-sm text-slate-400">{formatDateTimeShort(report.submittedAt)}</p>
               </div>
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-6">
                 <div className="text-sm text-slate-400">
