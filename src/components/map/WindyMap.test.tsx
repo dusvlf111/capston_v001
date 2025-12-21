@@ -15,10 +15,6 @@ const mockLeaflet = {
     })),
 };
 
-vi.mock('leaflet', () => ({
-    default: mockLeaflet,
-}));
-
 import WindyMap from './WindyMap';
 
 describe('WindyMap', () => {
@@ -51,9 +47,11 @@ describe('WindyMap', () => {
             callback(mockWindyAPI);
         });
 
+        // Mock Leaflet (provided by Windy's libBoot.js)
+        (window as any).L = mockLeaflet;
+
         // Mock environment variable
         process.env.NEXT_PUBLIC_WINDY_MAP_KEY = 'test-api-key';
-        delete window.L;
         mockLeaflet.tileLayer.mockClear();
         mockTileLayerInstance.addTo.mockClear();
         mockTileLayerInstance.remove.mockClear();

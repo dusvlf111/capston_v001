@@ -63,13 +63,14 @@ export default function ReportForm({ className }: { className?: string }) {
     formState: { errors, isSubmitting },
   } = methods;
 
-  const locationCoordinates = watch("location.coordinates");
+  const latitude = watch("location.coordinates.latitude");
+  const longitude = watch("location.coordinates.longitude");
   const hasValidLocation = useMemo(() => {
     return (
-      typeof locationCoordinates?.latitude === "number" &&
-      typeof locationCoordinates?.longitude === "number"
+      typeof latitude === "number" &&
+      typeof longitude === "number"
     );
-  }, [locationCoordinates]);
+  }, [latitude, longitude]);
 
   const onSubmit = handleSubmit(async (values) => {
     setServerError(null);

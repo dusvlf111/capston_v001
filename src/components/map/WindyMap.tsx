@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import 'leaflet/dist/leaflet.css';
 
 type MapLayer = 'wind' | 'temp' | 'clouds' | 'rain' | 'waves';
 
@@ -17,18 +16,25 @@ import type { WindyOptions, WindyInitCallback } from '@/lib/windy';
 const WINDY_SCRIPT_SRC = 'https://api.windy.com/assets/map-forecast/libBoot.js';
 const isBrowser = typeof window !== 'undefined';
 
-const loadLeafletLibrary = async (): Promise<any | null> => {
-    if (!isBrowser) return null;
-    if ((window as any).L) return (window as any).L;
-    try {
-        const leafletModule = await import('leaflet');
-        const LeafletLib = leafletModule.default ?? leafletModule;
-        (window as any).L = LeafletLib;
-        return LeafletLib;
-    } catch (error) {
-        console.error('Failed to load Leaflet library', error);
-        return null;
-    }
+// Wait for Windy's built-in Leaflet to be available
+const waitForLeaflet = (): Promise<boolean> => {
+    if (!isBrowser) return Promise.resolve(false);
+    if ((window as any).L) return Promise.resolve(true);
+
+    return new Promise((resolve) => {
+        const checkInterval = setInterval(() => {
+            if ((window as any).L) {
+                clearInterval(checkInterval);
+                resolve(true);
+            }
+        }, 100);
+
+        // Timeout after 5 seconds
+        setTimeout(() => {
+            clearInterval(checkInterval);
+            resolve(false);
+        }, 5000);
+    });
 };
 
 export default function WindyMap() {
@@ -103,12 +109,16 @@ export default function WindyMap() {
         let disposed = false;
 
         const setup = async () => {
-            const leaflet = await loadLeafletLibrary();
-            if (!leaflet || disposed) {
+            // Load Windy script first (it includes its own Leaflet 1.4.x)
+            loadWindyScript();
+
+            // Wait for Windy's Leaflet to be available
+            const leafletAvailable = await waitForLeaflet();
+            if (!leafletAvailable || disposed) {
+                console.error('Leaflet library failed to load from Windy');
                 return;
             }
             setLeafletReady(true);
-            loadWindyScript();
         };
 
         setup();
