@@ -133,7 +133,7 @@ export default function ReportForm({ className }: { className?: string }) {
           <Alert
             variant="warning"
             title="위치 정보 필요"
-            description="신고를 제출하려면 위치 정보를 선택해주세요. '현재 위치 사용' 버튼을 클릭하거나 주소를 검색하세요."
+            description="신고를 제출하려면 위치 정보를 선택해주세요. 주소를 검색하여 활동 장소를 선택하세요."
           />
         )}
         {isSubmitting && (

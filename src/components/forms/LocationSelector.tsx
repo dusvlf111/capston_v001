@@ -36,7 +36,6 @@ export default function LocationSelector({ control, className }: LocationSelecto
   const mapRef = useRef<LeafletMap | null>(null);
   const markerRef = useRef<LeafletMarker | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const [isLocating, setIsLocating] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -160,85 +159,51 @@ export default function LocationSelector({ control, className }: LocationSelecto
     }
   }, [latitudeField.value, longitudeField.value, locationNameField.value, hasCoordinates]);
 
-  const handleUseCurrentLocation = useCallback(() => {
-    console.log("[위치] 현재 위치 사용 버튼 클릭됨");
-
-    if (typeof window === "undefined") {
-      console.error("[위치] window 객체가 없습니다 (서버 사이드)");
-      setGeoError("현재 브라우저에서 위치 정보를 사용할 수 없습니다.");
-      return;
-    }
-
-    if (!("geolocation" in navigator)) {
-      console.error("[위치] Geolocation API를 지원하지 않는 브라우저입니다");
-      setGeoError("현재 브라우저에서 위치 정보를 사용할 수 없습니다. HTTPS 환경이 필요할 수 있습니다.");
-      return;
-    }
-
-    console.log("[위치] Geolocation API 사용 가능, 위치 요청 시작");
-    setGeoError(null);
-    setIsLocating(true);
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        console.log("[위치] 위치 정보 획득 성공:", position.coords);
-        const lat = Number(position.coords.latitude.toFixed(6));
-        const lng = Number(position.coords.longitude.toFixed(6));
-
-        console.log("[위치] 설정할 좌표:", { lat, lng });
-        latitudeField.onChange(lat);
-        longitudeField.onChange(lng);
-
-        if (!locationNameField.value) {
-          locationNameField.onChange('현재 위치');
-        }
-
-        setIsLocating(false);
-        console.log("[위치] 위치 설정 완료");
-      },
-      (error) => {
-        console.error("[위치] 위치 정보 획득 실패:", error);
-        let message = "현재 위치를 가져올 수 없습니다.";
-
-        if (error.code === error.PERMISSION_DENIED) {
-          message = "위치 접근 권한이 거부되었습니다. 브라우저 설정에서 위치 권한을 허용해주세요.";
-          console.error("[위치] 권한 거부됨");
-        } else if (error.code === error.POSITION_UNAVAILABLE) {
-          message = "위치 정보를 사용할 수 없습니다. GPS나 네트워크 연결을 확인해주세요.";
-          console.error("[위치] 위치 정보 사용 불가");
-        } else if (error.code === error.TIMEOUT) {
-          message = "위치 정보 요청 시간이 초과되었습니다. 다시 시도해주세요.";
-          console.error("[위치] 시간 초과");
-        }
-
-        setGeoError(message);
-        setIsLocating(false);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000, // 10초에서 15초로 증가
-        maximumAge: 0
-      }
-    );
-  }, [latitudeField, longitudeField, locationNameField]);
-
   const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim()) {
+      setGeoError('검색어를 입력해주세요.');
+      return;
+    }
 
     setIsSearching(true);
     setGeoError(null);
+    setSearchResults([]);
 
     try {
+      // Add countrycodes=kr for better Korean results, and accept-language for Korean names
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=5`
+        `https://nominatim.openstreetmap.org/search?` +
+        `format=json` +
+        `&q=${encodeURIComponent(searchQuery)}` +
+        `&limit=10` +
+        `&countrycodes=kr` +
+        `&accept-language=ko`,
+        {
+          headers: {
+            'Accept': 'application/json',
+          }
+        }
       );
+      
+      if (!response.ok) {
+        throw new Error('검색 요청이 실패했습니다.');
+      }
+      
       const data = await response.json();
-      setSearchResults(data);
-      setShowResults(true);
+      
+      if (data.length === 0) {
+        setGeoError('검색 결과가 없습니다. 다른 키워드로 시도해보세요.');
+        setSearchResults([]);
+        setShowResults(false);
+      } else {
+        setSearchResults(data);
+        setShowResults(true);
+      }
     } catch (error) {
       console.error('Search failed:', error);
-      setGeoError('위치 검색에 실패했습니다.');
+      setGeoError('위치 검색에 실패했습니다. 네트워크 연결을 확인해주세요.');
       setSearchResults([]);
+      setShowResults(false);
     } finally {
       setIsSearching(false);
     }
@@ -255,6 +220,14 @@ export default function LocationSelector({ control, className }: LocationSelecto
     setSearchQuery('');
     setSearchResults([]);
     setShowResults(false);
+    setGeoError(null);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setSearchResults([]);
+    setShowResults(false);
+    setGeoError(null);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -266,67 +239,64 @@ export default function LocationSelector({ control, className }: LocationSelecto
 
   return (
     <section className={cn("space-y-4 rounded-2xl border border-slate-800 bg-slate-950/60 p-5", className)}>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold text-slate-300">신고 위치 정보</p>
-          <p className="text-xs text-slate-500">주소를 검색하거나 현재 위치를 불러오세요.</p>
-        </div>
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={handleUseCurrentLocation}
-          isLoading={isLocating}
-          disabled={isLocating}
-          data-testid="use-current-location"
-          aria-label="현재 위치 사용"
-        >
-          {isLocating ? (
-            <>
-              <span aria-hidden="true">🔍</span> 위치 확인 중...
-            </>
-          ) : (
-            <>
-              <span aria-hidden="true">📍</span> 현재 위치 사용
-            </>
-          )}
-        </Button>
+      <div>
+        <p className="text-sm font-semibold text-slate-300">신고 위치 정보</p>
+        <p className="text-xs text-slate-500">활동 장소의 주소를 검색하여 선택해주세요.</p>
       </div>
 
       {/* Address Search */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-slate-300">위치 검색</label>
         <div className="flex gap-2">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="예: 부산 해운대 해수욕장"
-            className="flex-1 rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-2 text-sm text-slate-50 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-400"
-          />
+          <div className="flex-1 relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="예: 부산 해운대 해수욕장"
+              className="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-2 text-sm text-slate-50 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-400"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={handleClearSearch}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                aria-label="검색어 지우기"
+              >
+                ✕
+              </button>
+            )}
+          </div>
           <Button
             type="button"
             variant="primary"
             size="sm"
             onClick={handleSearch}
             isLoading={isSearching}
+            disabled={isSearching || !searchQuery.trim()}
           >
-            검색
+            {isSearching ? '검색 중...' : '검색'}
           </Button>
         </div>
 
         {/* Search Results */}
         {showResults && searchResults.length > 0 && (
-          <div className="max-h-48 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950">
+          <div className="max-h-64 overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 shadow-lg">
+            <div className="sticky top-0 bg-slate-800 px-4 py-2 text-xs font-medium text-slate-400 border-b border-slate-700">
+              {searchResults.length}개의 결과를 찾았습니다
+            </div>
             {searchResults.map((result, idx) => (
               <button
                 key={idx}
                 type="button"
                 onClick={() => handleSelectLocation(result)}
-                className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-800 border-b border-slate-800 last:border-b-0"
+                className="w-full px-4 py-3 text-left text-sm text-slate-200 hover:bg-slate-800 border-b border-slate-800 last:border-b-0 transition-colors"
               >
-                {result.display_name}
+                <div className="flex items-start gap-2">
+                  <span className="text-sky-400 mt-0.5">📍</span>
+                  <span className="flex-1">{result.display_name}</span>
+                </div>
               </button>
             ))}
           </div>
