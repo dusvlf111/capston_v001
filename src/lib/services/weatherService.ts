@@ -8,7 +8,9 @@ export interface MarineWeather {
     wind_speed: number;
     wind_direction: number;
     wind_gusts: number;
-    temperature?: number; // 기온 (°C)
+    temperature?: number; // 기온 (°C) - 레거시
+    water_temperature?: number; // 수온 (°C)
+    air_temperature?: number; // 기온 (°C)
     provider?: 'windy' | 'open-meteo' | 'unknown';
 }
 
@@ -81,7 +83,9 @@ const mapWindyToMarineWeather = (data: WindyPointForecastResponse): MarineWeathe
         wind_speed: speed,
         wind_direction: direction,
         wind_gusts: gust,
-        temperature: temp !== undefined ? temp - 273.15 : undefined, // Kelvin to Celsius
+        temperature: temp !== undefined ? temp - 273.15 : undefined, // Kelvin to Celsius (레거시)
+        air_temperature: temp !== undefined ? temp - 273.15 : undefined, // Kelvin to Celsius
+        water_temperature: undefined, // Windy does not provide water temp
         provider: 'windy',
     };
 };
@@ -117,7 +121,9 @@ const fetchFromOpenMeteo = async (lat: number, lon: number): Promise<MarineWeath
             wind_gusts: forecastCurrent?.wind_gusts_10m ?? 0,
             wave_height: marineCurrent?.wave_height ?? 0,
             swell_wave_height: marineCurrent?.swell_wave_height ?? 0,
-            temperature: forecastCurrent?.temperature_2m,
+            temperature: forecastCurrent?.temperature_2m, // 레거시
+            air_temperature: forecastCurrent?.temperature_2m,
+            water_temperature: undefined, // Open-Meteo marine API does not provide water temp
             provider: 'open-meteo',
         };
     } catch (error) {
