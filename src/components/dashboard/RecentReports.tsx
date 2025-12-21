@@ -1,22 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import type { Database } from "@/types/database.types";
 
-interface Report {
-  id: string;
-  report_no: number;
-  status: string;
-  safety_score: number | null;
-  created_at: string;
-  location_data: {
-    name?: string;
-    lat?: number;
-    lng?: number;
-  };
-}
+type ReportRow = Database["public"]["Tables"]["reports"]["Row"];
 
 interface RecentReportsProps {
-  reports: Report[];
+  reports: ReportRow[];
 }
 
 export default function RecentReports({ reports }: RecentReportsProps) {
@@ -50,6 +40,18 @@ export default function RecentReports({ reports }: RecentReportsProps) {
     });
   };
 
+  const parseLocationData = (locationData: unknown) => {
+    if (!locationData || typeof locationData !== "object") {
+      return { name: "", lat: undefined, lng: undefined };
+    }
+    const data = locationData as { name?: string; lat?: number; lng?: number };
+    return {
+      name: data.name || "",
+      lat: data.lat,
+      lng: data.lng,
+    };
+  };
+
   if (reports.length === 0) {
     return (
       <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-8">
@@ -81,52 +83,37 @@ export default function RecentReports({ reports }: RecentReportsProps) {
       </div>
 
       <div className="space-y-4">
-        {reports.map((report) => (
-          <Link
-            key={report.id}
-            href={`/report/result/${report.id}`}
-            className="block p-5 rounded-lg border border-slate-800 bg-slate-800/30 hover:bg-slate-800/50 hover:border-slate-700 transition-all group"
-          >
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h3 className="text-lg font-semibold text-slate-100 group-hover:text-sky-400 transition-colors">
-                    보고서 #{report.report_no}
-                  </h3>
-                  {getStatusBadge(report.status)}
-                </div>
-                <p className="text-sm text-slate-400">
-                  {report.location_data?.name || "위치 정보 없음"}
-                </p>
-              </div>
-              {report.safety_score !== null && (
-                <div className="text-right ml-4">
-                  <div className="text-2xl font-bold text-sky-400">
-                    {Math.round(report.safety_score)}
+        {reports.map((report) => {
+          const locationData = parseLocationData(report.location_data);
+          return (
+            <Link
+              key={report.id}
+              href={`/report/result/${report.id}`}
+              className="block p-5 rounded-lg border border-slate-800 bg-slate-800/30 hover:bg-slate-800/50 hover:border-slate-700 transition-all group"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="text-lg font-semibold text-slate-100 group-hover:text-sky-400 transition-colors">
+                      보고서 #{report.report_no}
+                    </h3>
+                    {getStatusBadge(report.status)}
                   </div>
-                  <div className="text-xs text-slate-500">안전점수</div>
+                  <p className="text-sm text-slate-400">
+                    {locationData.name || "위치 정보 없음"}
+                  </p>
                 </div>
-              )}
-            </div>
+                {report.safety_score !== null && (
+                  <div className="text-right ml-4">
+                    <div className="text-2xl font-bold text-sky-400">
+                      {Math.round(report.safety_score)}
+                    </div>
+                    <div className="text-xs text-slate-500">안전점수</div>
+                  </div>
+                )}
+              </div>
 
-            <div className="flex items-center gap-4 text-xs text-slate-500">
-              <span className="flex items-center gap-1">
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-                {formatDate(report.created_at)}
-              </span>
-              {report.location_data?.lat && report.location_data?.lng && (
+              <div className="flex items-center gap-4 text-xs text-slate-500">
                 <span className="flex items-center gap-1">
                   <svg
                     className="w-4 h-4"
@@ -138,21 +125,39 @@ export default function RecentReports({ reports }: RecentReportsProps) {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                   </svg>
-                  {report.location_data.lat.toFixed(4)}, {report.location_data.lng.toFixed(4)}
+                  {formatDate(report.created_at)}
                 </span>
-              )}
-            </div>
-          </Link>
-        ))}
+                {locationData.lat && locationData.lng && (
+                  <span className="flex items-center gap-1">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                    {locationData.lat.toFixed(4)}, {locationData.lng.toFixed(4)}
+                  </span>
+                )}
+              </div>
+            </Link>
+          );
+        })}
       </div>
 
       {reports.length >= 5 && (

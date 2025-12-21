@@ -3,6 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 import DashboardStats from "@/components/dashboard/DashboardStats";
 import RecentReports from "@/components/dashboard/RecentReports";
 import QuickActions from "@/components/dashboard/QuickActions";
+import type { Database } from "@/types/database.types";
+
+type ReportRow = Database["public"]["Tables"]["reports"]["Row"];
+type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -15,11 +19,13 @@ export default async function DashboardPage() {
   }
 
   // 사용자 프로필 가져오기
-  const { data: profile } = await supabase
+  const { data: profileData } = await supabase
     .from("profiles")
     .select("*")
     .eq("user_id", user.id)
     .single();
+
+  const profile = profileData as ProfileRow | null;
 
   // 사용자의 모든 보고서 가져오기
   const { data: reports } = await supabase
@@ -28,16 +34,19 @@ export default async function DashboardPage() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  // 통계 계산
-  const totalReports = reports?.length || 0;
-  const lastActivityDate = reports?.[0]?.created_at || null;
+  // 타입 안전성을 위해 명시적으로 타입 지정
+  const typedReports = (reports || []) as ReportRow[];
 
-  const averageScore = reports && reports.length > 0
-    ? reports.reduce((acc, report) => acc + (report.safety_score || 0), 0) / reports.length
+  // 통계 계산
+  const totalReports = typedReports.length;
+  const lastActivityDate = typedReports[0]?.created_at || null;
+
+  const averageScore = typedReports.length > 0
+    ? typedReports.reduce((acc, report) => acc + (report.safety_score || 0), 0) / typedReports.length
     : null;
 
   // 최근 5개 보고서만 표시
-  const recentReports = reports?.slice(0, 5) || [];
+  const recentReports = typedReports.slice(0, 5);
 
   return (
     <div className="min-h-screen bg-slate-950">
