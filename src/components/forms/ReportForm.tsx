@@ -135,6 +135,20 @@ export default function ReportForm({ className }: { className?: string }) {
             description="신고를 제출하려면 위치 정보를 선택해주세요. '현재 위치 사용' 버튼을 클릭하거나 주소를 검색하세요."
           />
         )}
+        {isSubmitting && (
+          <div className="rounded-2xl border border-blue-800 bg-blue-950/20 p-4">
+            <div className="flex items-center gap-3">
+              <div className="relative w-8 h-8 shrink-0">
+                <div className="absolute inset-0 border-3 border-blue-800 rounded-full"></div>
+                <div className="absolute inset-0 border-3 border-t-blue-400 rounded-full animate-spin"></div>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-blue-300">신고를 제출하는 중...</p>
+                <p className="text-xs text-blue-400/70">안전 분석을 수행하고 있습니다. 잠시만 기다려주세요.</p>
+              </div>
+            </div>
+          </div>
+        )}
         {serverError && <Alert variant="error" title="제출에 실패했습니다" description={serverError} />}
         {lastReport && (
           <Alert

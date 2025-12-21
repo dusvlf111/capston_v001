@@ -56,7 +56,14 @@ export default function SafetyAnalysis({ result, aiReport, weatherData, warnings
                         <span>🌊</span> 실시간 해양 기상 정보
                     </h3>
                 </div>
-                <div className="p-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="p-4 grid grid-cols-2 sm:grid-cols-5 gap-4">
+                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                        <div className="text-xs text-gray-500 mb-1">기온 (Temp)</div>
+                        <div className="font-semibold text-gray-900">
+                            {weatherData?.temperature !== undefined ? weatherData.temperature.toFixed(1) : '-'}
+                            <span className="text-xs font-normal text-gray-500 ml-1">°C</span>
+                        </div>
+                    </div>
                     <div className="text-center p-3 bg-gray-50 rounded-lg">
                         <div className="text-xs text-gray-500 mb-1">바람 (Wind)</div>
                         <div className="font-semibold text-gray-900">
@@ -108,22 +115,61 @@ export default function SafetyAnalysis({ result, aiReport, weatherData, warnings
                 )}
                 {stations && stations.length > 0 && (
                     <div className="px-4 pb-4">
-                        <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-lg">
-                            <div className="text-xs font-bold text-emerald-700 mb-1">🚨 인근 해양경찰 연락처</div>
-                            <ul className="text-sm text-emerald-700 divide-y divide-emerald-100">
+                        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="text-lg">🚨</span>
+                                <h4 className="text-sm font-bold text-emerald-800">인근 해양경찰서</h4>
+                            </div>
+                            <p className="text-xs text-emerald-700 mb-3">
+                                긴급 상황 시 가장 가까운 해양경찰서에 연락하세요. (긴급전화: 122)
+                            </p>
+                            <ul className="space-y-3">
                                 {stations.slice(0, 3).map((station, index) => (
-                                    <li key={`${station.name}-${index}`} className="py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-                                        <div>
-                                            <p className="font-semibold">{station.name}</p>
-                                            {station.distance !== undefined && (
-                                                <p className="text-xs text-emerald-600">약 {station.distance.toFixed(1)} km</p>
+                                    <li key={`${station.name}-${index}`} className="p-3 bg-white rounded-lg border border-emerald-100">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="font-semibold text-emerald-900">{station.name}</span>
+                                                    {index === 0 && (
+                                                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium">
+                                                            가장 가까움
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center gap-3 text-xs text-emerald-600">
+                                                    {station.distance !== undefined && (
+                                                        <span className="flex items-center gap-1">
+                                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                            </svg>
+                                                            약 {station.distance.toFixed(1)} km
+                                                        </span>
+                                                    )}
+                                                    {station.tel && (
+                                                        <a
+                                                            href={`tel:${station.tel.replace(/[^0-9]/g, '')}`}
+                                                            className="flex items-center gap-1 font-medium text-emerald-700 hover:text-emerald-800 underline"
+                                                        >
+                                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                                            </svg>
+                                                            {station.tel}
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            {station.lat && station.lon && (
+                                                <a
+                                                    href={`https://www.google.com/maps/dir/?api=1&destination=${station.lat},${station.lon}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="shrink-0 px-2 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 text-xs rounded font-medium transition-colors"
+                                                >
+                                                    길찾기
+                                                </a>
                                             )}
                                         </div>
-                                        {station.tel && (
-                                            <a href={`tel:${station.tel.replace(/[^0-9]/g, '')}`} className="text-sm font-medium text-emerald-800 underline">
-                                                {station.tel}
-                                            </a>
-                                        )}
                                     </li>
                                 ))}
                             </ul>

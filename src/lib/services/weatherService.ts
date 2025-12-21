@@ -8,6 +8,7 @@ export interface MarineWeather {
     wind_speed: number;
     wind_direction: number;
     wind_gusts: number;
+    temperature?: number; // 기온 (°C)
     provider?: 'windy' | 'open-meteo' | 'unknown';
 }
 
@@ -70,6 +71,7 @@ const mapWindyToMarineWeather = (data: WindyPointForecastResponse): MarineWeathe
     const waves = getSeriesValue(data['waves_height-surface'], index) ?? 0;
     const swellSeries = data['swell1_height-surface'] ?? data['swell_height-surface'];
     const swell = getSeriesValue(swellSeries, index) ?? 0;
+    const temp = getSeriesValue(data['temp-surface'], index); // 기온 (Kelvin -> Celsius)
     const { speed, direction } = calculateWindVector(windU, windV);
 
     return {
@@ -79,6 +81,7 @@ const mapWindyToMarineWeather = (data: WindyPointForecastResponse): MarineWeathe
         wind_speed: speed,
         wind_direction: direction,
         wind_gusts: gust,
+        temperature: temp !== undefined ? temp - 273.15 : undefined, // Kelvin to Celsius
         provider: 'windy',
     };
 };
@@ -89,7 +92,7 @@ const fetchFromOpenMeteo = async (lat: number, lon: number): Promise<MarineWeath
             params: {
                 latitude: lat,
                 longitude: lon,
-                current: ['wind_speed_10m', 'wind_direction_10m', 'wind_gusts_10m'],
+                current: ['wind_speed_10m', 'wind_direction_10m', 'wind_gusts_10m', 'temperature_2m'],
                 timezone: 'auto',
             },
         });
@@ -114,6 +117,7 @@ const fetchFromOpenMeteo = async (lat: number, lon: number): Promise<MarineWeath
             wind_gusts: forecastCurrent?.wind_gusts_10m ?? 0,
             wave_height: marineCurrent?.wave_height ?? 0,
             swell_wave_height: marineCurrent?.swell_wave_height ?? 0,
+            temperature: forecastCurrent?.temperature_2m,
             provider: 'open-meteo',
         };
     } catch (error) {

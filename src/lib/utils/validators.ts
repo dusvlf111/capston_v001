@@ -23,7 +23,11 @@ const activitySchema = z
   .object({
     type: activityTypeEnum,
     startTime: z.string().min(1, '시작 시간을 입력하세요.').datetime({ message: '시작 시간을 ISO 형식으로 입력하세요.' }),
-    endTime: z.string().datetime({ message: '종료 시간을 ISO 형식으로 입력하세요.' }).optional().or(z.literal('')),
+    endTime: z.union([
+      z.string().datetime({ message: '종료 시간을 ISO 형식으로 입력하세요.' }),
+      z.literal(''),
+      z.undefined()
+    ]).optional(),
     participants: z
       .number()
       .int('참가자 수는 정수여야 합니다.')
