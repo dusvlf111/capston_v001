@@ -1,12 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import type { Database } from "@/types/database.types";
-
-type ReportRow = Database["public"]["Tables"]["reports"]["Row"];
+import type { ReportResponse } from "@/types/api";
 
 interface RecentReportsProps {
-  reports: ReportRow[];
+  reports: ReportResponse[];
 }
 
 export default function RecentReports({ reports }: RecentReportsProps) {
@@ -40,18 +38,6 @@ export default function RecentReports({ reports }: RecentReportsProps) {
     });
   };
 
-  const parseLocationData = (locationData: unknown) => {
-    if (!locationData || typeof locationData !== "object") {
-      return { name: "", lat: undefined, lng: undefined };
-    }
-    const data = locationData as { name?: string; lat?: number; lng?: number };
-    return {
-      name: data.name || "",
-      lat: data.lat,
-      lng: data.lng,
-    };
-  };
-
   if (reports.length === 0) {
     return (
       <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-8">
@@ -83,30 +69,28 @@ export default function RecentReports({ reports }: RecentReportsProps) {
       </div>
 
       <div className="space-y-4">
-        {reports.map((report) => {
-          const locationData = parseLocationData(report.location_data);
-          return (
-            <Link
-              key={report.id}
-              href={`/report/result/${report.id}`}
-              className="block p-5 rounded-lg border border-slate-800 bg-slate-800/30 hover:bg-slate-800/50 hover:border-slate-700 transition-all group"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-semibold text-slate-100 group-hover:text-sky-400 transition-colors">
-                      보고서 #{report.report_no}
-                    </h3>
-                    {getStatusBadge(report.status)}
-                  </div>
-                  <p className="text-sm text-slate-400">
-                    {locationData.name || "위치 정보 없음"}
-                  </p>
+        {reports.map((report) => (
+          <Link
+            key={report.id}
+            href={`/report/${report.id}`}
+            className="block p-5 rounded-lg border border-slate-800 bg-slate-800/30 hover:bg-slate-800/50 hover:border-slate-700 transition-all group"
+          >
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className="text-lg font-semibold text-slate-100 group-hover:text-sky-400 transition-colors">
+                    보고서 #{report.reportId}
+                  </h3>
+                  {getStatusBadge(report.status)}
+                </div>
+                <p className="text-sm text-slate-400">
+                  {report.location.name}
+                </p>
                 </div>
                 {report.safety_score !== null && (
                   <div className="text-right ml-4">
                     <div className="text-2xl font-bold text-sky-400">
-                      {Math.round(report.safety_score)}
+                      {Math.round(report.safetyScore)}
                     </div>
                     <div className="text-xs text-slate-500">안전점수</div>
                   </div>
@@ -128,9 +112,9 @@ export default function RecentReports({ reports }: RecentReportsProps) {
                       d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                   </svg>
-                  {formatDate(report.created_at)}
+                  {formatDate(report.submittedAt)}
                 </span>
-                {locationData.lat && locationData.lng && (
+                {report.location.coordinates.latitude && report.location.coordinates.longitude && (
                   <span className="flex items-center gap-1">
                     <svg
                       className="w-4 h-4"
@@ -151,7 +135,7 @@ export default function RecentReports({ reports }: RecentReportsProps) {
                         d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                       />
                     </svg>
-                    {locationData.lat.toFixed(4)}, {locationData.lng.toFixed(4)}
+                    {report.location.coordinates.latitude.toFixed(4)}, {report.location.coordinates.longitude.toFixed(4)}
                   </span>
                 )}
               </div>

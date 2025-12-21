@@ -4,6 +4,7 @@ import DashboardStats from "@/components/dashboard/DashboardStats";
 import RecentReports from "@/components/dashboard/RecentReports";
 import QuickActions from "@/components/dashboard/QuickActions";
 import type { Database } from "@/types/database.types";
+import { mapReportRowToResponse } from "@/lib/utils/reportTransform";
 
 type ReportRow = Database["public"]["Tables"]["reports"]["Row"];
 type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
@@ -36,6 +37,9 @@ export default async function DashboardPage() {
 
   // 타입 안전성을 위해 명시적으로 타입 지정
   const typedReports = (reports || []) as ReportRow[];
+  
+  // 변환된 리포트 데이터
+  const transformedReports = typedReports.map(mapReportRowToResponse);
 
   // 통계 계산
   const totalReports = typedReports.length;
@@ -46,7 +50,7 @@ export default async function DashboardPage() {
     : null;
 
   // 최근 5개 보고서만 표시
-  const recentReports = typedReports.slice(0, 5);
+  const recentReports = transformedReports.slice(0, 5);
 
   return (
     <div className="min-h-screen bg-slate-950">

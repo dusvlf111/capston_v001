@@ -72,7 +72,14 @@ export default async function ReportResultPage({ params }: { params: Promise<{ i
                     <div>
                         <dt className="text-gray-500">일시</dt>
                         <dd className="font-medium text-gray-900">
-                            {new Date(activity.startTime).toLocaleString('ko-KR')}
+                            {new Date(activity.startTime).toLocaleString('ko-KR', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false
+                            })}
                         </dd>
                     </div>
                     <div>
