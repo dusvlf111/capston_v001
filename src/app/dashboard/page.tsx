@@ -42,11 +42,13 @@ export default async function DashboardPage() {
   const transformedReports = typedReports.map(mapReportRowToResponse);
 
   // 통계 계산
-  const totalReports = typedReports.length;
-  const lastActivityDate = typedReports[0]?.created_at || null;
+  const totalReports = transformedReports.length;
+  const lastActivityDate = transformedReports[0]?.submittedAt || null;
 
-  const averageScore = typedReports.length > 0
-    ? typedReports.reduce((acc, report) => acc + (report.safety_score || 0), 0) / typedReports.length
+  // 안전점수가 있는 리포트만 필터링하여 평균 계산
+  const reportsWithScore = transformedReports.filter(report => report.safetyScore !== null && report.safetyScore > 0);
+  const averageScore = reportsWithScore.length > 0
+    ? reportsWithScore.reduce((acc, report) => acc + report.safetyScore, 0) / reportsWithScore.length
     : null;
 
   // 최근 5개 보고서만 표시

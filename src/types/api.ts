@@ -63,6 +63,7 @@ export interface ReportResponse {
   activity: ActivityPayload;
   contact: ContactPayload;
   notes?: string;
+  companions?: CompanionPayload[];
   analysis?: Record<string, unknown>;
   safety_analysis?: SafetyAnalysisResult;
 }

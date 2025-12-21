@@ -343,7 +343,7 @@ export default function LocationSelector({ control, className }: LocationSelecto
                 >
                   <div className="flex items-start gap-2">
                     <span className="text-sky-400 mt-0.5">📍</span>
-                    <span className="flex-1 break-words">{result.display_name}</span>
+                    <span className="flex-1 overflow-wrap-break-word">{result.display_name}</span>
                   </div>
                 </button>
               ))}

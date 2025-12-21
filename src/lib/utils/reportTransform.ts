@@ -27,6 +27,7 @@ export function mapReportRowToResponse(
     location: payload.location,
     activity: payload.activity,
     contact: payload.contact,
-    notes: payload.notes
+    notes: payload.notes,
+    companions: payload.companions
   };
 }
