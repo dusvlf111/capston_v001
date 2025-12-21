@@ -12,10 +12,12 @@ import {
   mockShippingAlerts
 } from "@/lib/data/mockData";
 
+// 동적 라우트로 강제 설정
 export const dynamic = "force-dynamic";
+export const dynamicParams = true;
 
 type PageProps = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 const statusTokens: Record<string, string> = {
@@ -48,24 +50,50 @@ const emergencyContacts = [
 ];
 
 export default async function ReportDetailPage({ params }: PageProps) {
+  // Next.js 15+ params는 Promise
+  const resolvedParams = await params;
+  const reportId = resolvedParams.id;
+
   const supabase = await createClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect(`/login?redirectTo=/report/${params.id}`);
+    redirect(`/login?redirectTo=/report/${reportId}`);
   }
 
+  // 리포트 조회
   const { data, error } = await supabase
     .from("reports")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", reportId)
     .single();
+
+  // 에러 로깅 (개발/프로덕션 환경 모두)
+  if (error) {
+    console.error("Report fetch error:", {
+      reportId,
+      userId: user.id,
+      error: error.message,
+      code: error.code
+    });
+  }
 
   const reportRow = data as Database["public"]["Tables"]["reports"]["Row"] | null;
 
-  if (error || !reportRow || reportRow.user_id !== user.id) {
+  // 리포트가 없거나 다른 사용자의 리포트인 경우
+  if (!reportRow) {
+    console.warn("Report not found:", reportId);
+    notFound();
+  }
+
+  if (reportRow.user_id !== user.id) {
+    console.warn("Unauthorized access attempt:", {
+      reportId,
+      reportUserId: reportRow.user_id,
+      currentUserId: user.id
+    });
     notFound();
   }
 
