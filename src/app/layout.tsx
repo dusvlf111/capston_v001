@@ -9,16 +9,11 @@ export const metadata: Metadata = {
   title: "Capston Supabase PWA",
   description:
     "Next.js + Supabase starter with PWA support, ready for Vercel deployments.",
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: "/icons/icon-192.png",
     shortcut: "/icons/icon-512.png",
     apple: "/icons/icon-512.png",
-    other: [
-      {
-        rel: "manifest",
-        url: "/manifest.webmanifest",
-      },
-    ],
   },
 };
 

@@ -194,9 +194,12 @@ export default function SafetyAnalysis({ result, aiReport, weatherData, warnings
                             </div>
                             <div className="bg-white p-3 rounded-lg border border-slate-100">
                                 <h4 className="text-sm font-semibold text-slate-700 mb-1">권장사항</h4>
-                                <ul className="list-disc list-inside text-slate-600 text-xs space-y-1 whitespace-pre-line">
+                                <ul className="text-slate-600 text-xs space-y-1.5">
                                     {aiReport.recommendations.map((rec, idx) => (
-                                        <li key={idx} className="leading-snug">{rec}</li>
+                                        <li key={idx} className="leading-relaxed whitespace-pre-wrap break-words flex items-start gap-1.5">
+                                            <span className="text-slate-400 mt-0.5">•</span>
+                                            <span className="flex-1">{rec}</span>
+                                        </li>
                                     ))}
                                 </ul>
                             </div>

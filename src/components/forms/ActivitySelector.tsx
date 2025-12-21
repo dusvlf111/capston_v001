@@ -8,7 +8,6 @@ import Input from "@/components/ui/Input";
 import { ACTIVITY_TYPES } from "@/types/api";
 import type { ReportSchema } from "@/lib/utils/validators";
 import { cn } from "@/lib/utils/cn";
-import { ensureEndTimeAfterStart } from "@/lib/utils/activityTime";
 
 interface ActivitySelectorProps {
   control: Control<ReportSchema>;
@@ -80,25 +79,21 @@ export default function ActivitySelector({ control, className }: ActivitySelecto
       return;
     }
 
-    const sanitizedEnd = ensureEndTimeAfterStart(startTimeField.value, endTimeField.value);
-
-    if (sanitizedEnd && sanitizedEnd !== endTimeField.value) {
-      endTimeField.onChange(sanitizedEnd);
-    }
-
-    if (!sanitizedEnd) {
-      setTimeError("종료 시간을 입력하세요.");
+    // endTime이 비어있으면 검증하지 않음 (선택적 필드)
+    if (!endTimeField.value || endTimeField.value === '') {
+      setTimeError(null);
       return;
     }
 
     const start = new Date(startTimeField.value).getTime();
-    const end = new Date(sanitizedEnd).getTime();
+    const end = new Date(endTimeField.value).getTime();
+
     if (Number.isFinite(start) && Number.isFinite(end) && end <= start) {
       setTimeError("종료 시간은 시작 시간 이후여야 합니다.");
     } else {
       setTimeError(null);
     }
-  }, [startTimeField.value, endTimeField.value, endTimeField]);
+  }, [startTimeField.value, endTimeField.value]);
 
   const activityButtons = useMemo(() => ACTIVITY_TYPES, []);
 

@@ -59,8 +59,17 @@ export default function ReportForm({ className }: { className?: string }) {
   const {
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = methods;
+
+  const locationCoordinates = watch("location.coordinates");
+  const hasValidLocation = useMemo(() => {
+    return (
+      typeof locationCoordinates?.latitude === "number" &&
+      typeof locationCoordinates?.longitude === "number"
+    );
+  }, [locationCoordinates]);
 
   const onSubmit = handleSubmit(async (values) => {
     setServerError(null);
@@ -119,6 +128,13 @@ export default function ReportForm({ className }: { className?: string }) {
           {errors.notes?.message && <span className="text-xs text-rose-400">{errors.notes.message}</span>}
         </label>
 
+        {!hasValidLocation && (
+          <Alert
+            variant="warning"
+            title="위치 정보 필요"
+            description="신고를 제출하려면 위치 정보를 선택해주세요. '현재 위치 사용' 버튼을 클릭하거나 주소를 검색하세요."
+          />
+        )}
         {serverError && <Alert variant="error" title="제출에 실패했습니다" description={serverError} />}
         {lastReport && (
           <Alert
@@ -132,7 +148,7 @@ export default function ReportForm({ className }: { className?: string }) {
           <Button type="button" variant="secondary" onClick={handleReset} disabled={isSubmitting}>
             입력 초기화
           </Button>
-          <Button type="submit" isLoading={isSubmitting}>
+          <Button type="submit" isLoading={isSubmitting} disabled={!hasValidLocation || isSubmitting}>
             신고 제출
           </Button>
         </div>

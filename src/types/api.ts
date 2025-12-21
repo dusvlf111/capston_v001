@@ -28,7 +28,7 @@ export interface LocationPayload {
 export interface ActivityPayload {
   type: ActivityType;
   startTime: string;
-  endTime: string;
+  endTime?: string;
   participants: number;
 }
 

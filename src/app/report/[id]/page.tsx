@@ -111,7 +111,9 @@ export default async function ReportDetailPage({ params }: PageProps) {
           <p className="font-semibold text-slate-50">
             {formatDate(report.activity.startTime)}
           </p>
-          <p className="text-sm text-slate-500">~ {formatDate(report.activity.endTime)}</p>
+          {report.activity.endTime && (
+            <p className="text-sm text-slate-500">~ {formatDate(report.activity.endTime)}</p>
+          )}
           <p className="mt-4 text-sm text-slate-400">참가자 수</p>
           <p className="text-3xl font-semibold text-slate-50">{report.activity.participants}명</p>
         </div>
@@ -144,10 +146,12 @@ export default async function ReportDetailPage({ params }: PageProps) {
               <dt>시작</dt>
               <dd>{formatDate(report.activity.startTime)}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt>종료</dt>
-              <dd>{formatDate(report.activity.endTime)}</dd>
-            </div>
+            {report.activity.endTime && (
+              <div className="flex justify-between">
+                <dt>종료</dt>
+                <dd>{formatDate(report.activity.endTime)}</dd>
+              </div>
+            )}
             <div className="flex justify-between">
               <dt>참가자</dt>
               <dd>{report.activity.participants}명</dd>

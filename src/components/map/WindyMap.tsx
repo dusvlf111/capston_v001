@@ -11,24 +11,20 @@ interface SearchResult {
     lon: string;
 }
 
-declare global {
-    interface Window {
-        L?: any;
-        windyInit?: (options: Record<string, unknown>, callback: (api: any) => void) => void;
-    }
-}
+// Import Windy types
+import type { WindyOptions, WindyInitCallback } from '@/lib/windy';
 
 const WINDY_SCRIPT_SRC = 'https://api.windy.com/assets/map-forecast/libBoot.js';
 const isBrowser = typeof window !== 'undefined';
 
 const loadLeafletLibrary = async (): Promise<any | null> => {
     if (!isBrowser) return null;
-    if (window.L) return window.L;
+    if ((window as any).L) return (window as any).L;
     try {
         const leafletModule = await import('leaflet');
-        const L = leafletModule.default ?? leafletModule;
-        window.L = L;
-        return L;
+        const LeafletLib = leafletModule.default ?? leafletModule;
+        (window as any).L = LeafletLib;
+        return LeafletLib;
     } catch (error) {
         console.error('Failed to load Leaflet library', error);
         return null;

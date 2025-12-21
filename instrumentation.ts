@@ -44,7 +44,7 @@ export const applySourceMapWarningFilter = (): void => {
     }) as typeof process.emitWarning;
 
     proc[PATCH_FLAG] = { originalEmitWarning: originalEmit };
-    process.emitWarning = filteredEmit;
+    (process as any).emitWarning = filteredEmit;
 };
 
 export async function register(): Promise<void> {
@@ -57,6 +57,6 @@ export const __resetSourceMapWarningFilterForTest = (): void => {
     if (!snapshot) {
         return;
     }
-    process.emitWarning = snapshot.originalEmitWarning;
+    (process as any).emitWarning = snapshot.originalEmitWarning;
     delete proc[PATCH_FLAG];
 };

@@ -23,7 +23,7 @@ const activitySchema = z
   .object({
     type: activityTypeEnum,
     startTime: z.string().min(1, '시작 시간을 입력하세요.').datetime({ message: '시작 시간을 ISO 형식으로 입력하세요.' }),
-    endTime: z.string().min(1, '종료 시간을 입력하세요.').datetime({ message: '종료 시간을 ISO 형식으로 입력하세요.' }),
+    endTime: z.string().datetime({ message: '종료 시간을 ISO 형식으로 입력하세요.' }).optional().or(z.literal('')),
     participants: z
       .number()
       .int('참가자 수는 정수여야 합니다.')
@@ -31,7 +31,10 @@ const activitySchema = z
       .max(200, '참가자 수는 200명을 초과할 수 없습니다.')
   })
   .refine(
-    ({ startTime, endTime }) => new Date(endTime).getTime() > new Date(startTime).getTime(),
+    ({ startTime, endTime }) => {
+      if (!endTime || endTime === '') return true;
+      return new Date(endTime).getTime() > new Date(startTime).getTime();
+    },
     {
       message: '종료 시간은 시작 시간 이후여야 합니다.',
       path: ['endTime']

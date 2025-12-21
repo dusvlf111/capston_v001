@@ -38,7 +38,7 @@ export const generateSafetyReport = async (
     **Activity Details:**
     - Type: ${report.activity.type}
     - Location: ${report.location.name} (${report.location.coordinates.latitude}, ${report.location.coordinates.longitude})
-    - Time: ${report.activity.startTime} ~ ${report.activity.endTime}
+    - Time: ${report.activity.startTime}${report.activity.endTime ? ` ~ ${report.activity.endTime}` : ' (종료 시간 미정)'}
     - Participants: ${report.activity.participants}
     - Companions: ${report.companions?.length || 0}
 

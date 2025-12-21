@@ -15,13 +15,14 @@ function formatReportNo(report: ReportRow, fallbackId: string): string {
     return fallbackId.slice(0, 8);
 }
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const { id } = await params;
         const supabase = (await createClient()) as unknown as SupabaseClient<Database>;
         const { data: report, error } = await supabase
             .from('reports')
             .select('*')
-            .eq('id', params.id)
+            .eq('id', id)
             .single();
 
         if (error || !report) {
@@ -36,12 +37,12 @@ export async function GET(_request: Request, { params }: { params: { id: string 
             await supabase
                 .from('reports')
                 .update({ location_data: persisted })
-                .eq('id', params.id);
+                .eq('id', id);
         }
 
         return NextResponse.json({
             id: reportRow.id,
-            reportNo: formatReportNo(reportRow, params.id),
+            reportNo: formatReportNo(reportRow, id),
             location: updatedPayload.location,
             activity: updatedPayload.activity,
             contact: updatedPayload.contact,
