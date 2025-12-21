@@ -1,5 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import DashboardStats from "@/components/dashboard/DashboardStats";
+import RecentReports from "@/components/dashboard/RecentReports";
+import QuickActions from "@/components/dashboard/QuickActions";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -11,37 +14,59 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
+  // 사용자 프로필 가져오기
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("user_id", user.id)
+    .single();
+
+  // 사용자의 모든 보고서 가져오기
+  const { data: reports } = await supabase
+    .from("reports")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  // 통계 계산
+  const totalReports = reports?.length || 0;
+  const lastActivityDate = reports?.[0]?.created_at || null;
+
+  const averageScore = reports && reports.length > 0
+    ? reports.reduce((acc, report) => acc + (report.safety_score || 0), 0) / reports.length
+    : null;
+
+  // 최근 5개 보고서만 표시
+  const recentReports = reports?.slice(0, 5) || [];
+
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="mb-8 text-3xl font-bold text-slate-50">대시보드</h1>
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
-          <h3 className="mb-2 text-lg font-semibold text-slate-100">총 보고 건수</h3>
-          <p className="text-3xl font-bold text-sky-400">0</p>
-          <p className="mt-2 text-sm text-slate-400">등록된 안전 보고 수</p>
+    <div className="min-h-screen bg-slate-950">
+      <div className="mx-auto max-w-7xl px-6 py-12">
+        {/* 헤더 */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-50 mb-2">대시보드</h1>
+          <p className="text-slate-400">
+            안녕하세요, {profile?.full_name || user.email}님! 👋
+          </p>
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
-          <h3 className="mb-2 text-lg font-semibold text-slate-100">최근 활동</h3>
-          <p className="text-3xl font-bold text-green-400">-</p>
-          <p className="mt-2 text-sm text-slate-400">마지막 보고 일시</p>
+        {/* 통계 카드 */}
+        <div className="mb-8">
+          <DashboardStats
+            totalReports={totalReports}
+            lastActivityDate={lastActivityDate}
+            averageScore={averageScore}
+          />
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
-          <h3 className="mb-2 text-lg font-semibold text-slate-100">안전 점수 평균</h3>
-          <p className="text-3xl font-bold text-yellow-400">-</p>
-          <p className="mt-2 text-sm text-slate-400">전체 보고 평균 점수</p>
+        {/* 빠른 액션 */}
+        <div className="mb-8">
+          <QuickActions />
         </div>
-      </div>
 
-      <div className="mt-8 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
-        <h2 className="mb-4 text-xl font-semibold text-slate-100">최근 보고 내역</h2>
-        <div className="text-center py-12 text-slate-400">
-          <p>아직 등록된 보고가 없습니다.</p>
-          <a href="/report" className="mt-4 inline-block text-sky-400 hover:text-sky-300">
-            새 보고 작성하기 →
-          </a>
+        {/* 최근 보고 내역 */}
+        <div>
+          <RecentReports reports={recentReports} />
         </div>
       </div>
     </div>
