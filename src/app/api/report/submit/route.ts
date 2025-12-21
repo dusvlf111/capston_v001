@@ -41,10 +41,10 @@ export async function POST(request: Request) {
   const { location, activity, contact, notes, companions } = payload;
 
   // 1. Fetch Environmental Data (weather, warnings, coast guard stations)
-  const environmentalData = await fetchEnvironmentalInsights(
-    location.coordinates.latitude,
-    location.coordinates.longitude
-  );
+  const environmentalData = await fetchEnvironmentalInsights({
+    lat: location.coordinates.latitude,
+    lon: location.coordinates.longitude
+  });
 
   console.log("Environmental Data:", {
     hasWeather: !!environmentalData.weather,

@@ -27,8 +27,8 @@ export const shouldSuppressSourceMapWarning = (warning: unknown): boolean => {
 };
 
 export const applySourceMapWarningFilter = (): void => {
-    // Skip in Edge Runtime where process.emitWarning is not available
-    if (typeof process === 'undefined' || typeof process.emitWarning !== 'function') {
+    // Skip in Edge Runtime or when process is not available
+    if (typeof process === 'undefined' || !process || typeof process.emitWarning !== 'function') {
         return;
     }
 
@@ -38,7 +38,7 @@ export const applySourceMapWarningFilter = (): void => {
     }
 
     try {
-        const originalEmit = process.emitWarning.bind(process);
+        const originalEmit = (process.emitWarning as any).bind(process);
         const filteredEmit: typeof process.emitWarning = ((warning: any, ...args: any[]) => {
             if (shouldSuppressSourceMapWarning(warning)) {
                 if (process.env.NODE_ENV !== 'production') {
@@ -58,7 +58,10 @@ export const applySourceMapWarningFilter = (): void => {
 };
 
 export async function register(): Promise<void> {
-    applySourceMapWarningFilter();
+    // Only apply in Node.js runtime, not in Edge Runtime
+    if (typeof process !== 'undefined' && process && typeof process.emitWarning === 'function') {
+        applySourceMapWarningFilter();
+    }
 }
 
 export const __resetSourceMapWarningFilterForTest = (): void => {
