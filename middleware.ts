@@ -10,11 +10,7 @@ function requiresAuth(pathname: string) {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const response = NextResponse.next();
-  const { supabase, response: supabaseResponse } = createSupabaseMiddlewareClient(
-    request,
-    response,
-  );
+  const { supabase, response } = createSupabaseMiddlewareClient(request);
 
   const {
     data: { user },
@@ -31,7 +27,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  return supabaseResponse;
+  return response;
 }
 
 export const config = {
