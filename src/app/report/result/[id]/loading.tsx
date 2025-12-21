@@ -77,15 +77,17 @@ export default function Loading() {
         </div>
       </div>
 
-      {/* Loading Indicator */}
-      <div className="flex items-center justify-center gap-3 p-6">
-        <div className="relative w-12 h-12">
-          <div className="absolute inset-0 border-4 border-slate-700 rounded-full"></div>
-          <div className="absolute inset-0 border-4 border-t-sky-500 rounded-full animate-spin"></div>
-        </div>
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-slate-300">안전 분석 중...</p>
-          <p className="text-xs text-slate-500">기상 정보와 위험 요소를 분석하고 있습니다.</p>
+      {/* Loading Indicator - 화면 중앙 */}
+      <div className="fixed inset-0 flex items-center justify-center bg-slate-950/50 backdrop-blur-sm z-50">
+        <div className="flex items-center justify-center gap-3 p-6 bg-slate-900/90 rounded-2xl border border-slate-700 shadow-2xl">
+          <div className="relative w-12 h-12">
+            <div className="absolute inset-0 border-4 border-slate-700 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-t-sky-500 rounded-full animate-spin"></div>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-slate-300">안전 분석 중...</p>
+            <p className="text-xs text-slate-500">기상 정보와 위험 요소를 분석하고 있습니다.</p>
+          </div>
         </div>
       </div>
 

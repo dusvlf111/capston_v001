@@ -20,10 +20,7 @@ export default function Home() {
 
           {/* Content */}
           <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-400/20 mb-8">
-              <span className="text-2xl">🌊</span>
-              <span className="text-sm font-medium text-blue-300">Marine Safety Platform</span>
-            </div>
+       
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
               해양 활동,
