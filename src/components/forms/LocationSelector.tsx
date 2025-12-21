@@ -161,18 +161,31 @@ export default function LocationSelector({ control, className }: LocationSelecto
   }, [latitudeField.value, longitudeField.value, locationNameField.value, hasCoordinates]);
 
   const handleUseCurrentLocation = useCallback(() => {
-    if (typeof window === "undefined" || !("geolocation" in navigator)) {
+    console.log("[위치] 현재 위치 사용 버튼 클릭됨");
+
+    if (typeof window === "undefined") {
+      console.error("[위치] window 객체가 없습니다 (서버 사이드)");
       setGeoError("현재 브라우저에서 위치 정보를 사용할 수 없습니다.");
       return;
     }
 
+    if (!("geolocation" in navigator)) {
+      console.error("[위치] Geolocation API를 지원하지 않는 브라우저입니다");
+      setGeoError("현재 브라우저에서 위치 정보를 사용할 수 없습니다. HTTPS 환경이 필요할 수 있습니다.");
+      return;
+    }
+
+    console.log("[위치] Geolocation API 사용 가능, 위치 요청 시작");
     setGeoError(null);
     setIsLocating(true);
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        console.log("[위치] 위치 정보 획득 성공:", position.coords);
         const lat = Number(position.coords.latitude.toFixed(6));
         const lng = Number(position.coords.longitude.toFixed(6));
+
+        console.log("[위치] 설정할 좌표:", { lat, lng });
         latitudeField.onChange(lat);
         longitudeField.onChange(lng);
 
@@ -181,16 +194,31 @@ export default function LocationSelector({ control, className }: LocationSelecto
         }
 
         setIsLocating(false);
+        console.log("[위치] 위치 설정 완료");
       },
       (error) => {
-        const message =
-          error.code === error.PERMISSION_DENIED
-            ? "위치 접근이 거부되었습니다."
-            : "현재 위치를 가져올 수 없습니다.";
+        console.error("[위치] 위치 정보 획득 실패:", error);
+        let message = "현재 위치를 가져올 수 없습니다.";
+
+        if (error.code === error.PERMISSION_DENIED) {
+          message = "위치 접근 권한이 거부되었습니다. 브라우저 설정에서 위치 권한을 허용해주세요.";
+          console.error("[위치] 권한 거부됨");
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          message = "위치 정보를 사용할 수 없습니다. GPS나 네트워크 연결을 확인해주세요.";
+          console.error("[위치] 위치 정보 사용 불가");
+        } else if (error.code === error.TIMEOUT) {
+          message = "위치 정보 요청 시간이 초과되었습니다. 다시 시도해주세요.";
+          console.error("[위치] 시간 초과");
+        }
+
         setGeoError(message);
         setIsLocating(false);
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      {
+        enableHighAccuracy: true,
+        timeout: 15000, // 10초에서 15초로 증가
+        maximumAge: 0
+      }
     );
   }, [latitudeField, longitudeField, locationNameField]);
 
@@ -249,10 +277,19 @@ export default function LocationSelector({ control, className }: LocationSelecto
           size="sm"
           onClick={handleUseCurrentLocation}
           isLoading={isLocating}
+          disabled={isLocating}
           data-testid="use-current-location"
           aria-label="현재 위치 사용"
         >
-          <span aria-hidden="true">📍</span> 현재 위치 사용
+          {isLocating ? (
+            <>
+              <span aria-hidden="true">🔍</span> 위치 확인 중...
+            </>
+          ) : (
+            <>
+              <span aria-hidden="true">📍</span> 현재 위치 사용
+            </>
+          )}
         </Button>
       </div>
 
@@ -321,7 +358,17 @@ export default function LocationSelector({ control, className }: LocationSelecto
         />
       </div>
 
-      {geoError && <p className="text-sm text-rose-400" role="alert">{geoError}</p>}
+      {geoError && (
+        <div className="rounded-xl border border-rose-800 bg-rose-950/30 p-4" role="alert">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">⚠️</span>
+            <div>
+              <p className="text-sm font-semibold text-rose-300 mb-1">위치 정보 오류</p>
+              <p className="text-sm text-rose-400">{geoError}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Map Preview */}
       <div
