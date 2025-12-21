@@ -26,8 +26,13 @@ body {
   min-height: 100vh;
 }
 
-/* 모든 요소에서 커서 깜박임 제거 */
+/* 입력창 외 영역에서 텍스트 커서 깜박임 제거 */
 * {
-  cursor: none !important;
   caret-color: transparent;
+}
+
+/* 입력 요소에서는 텍스트 커서 표시 */
+input,
+textarea {
+  caret-color: auto;
 }
