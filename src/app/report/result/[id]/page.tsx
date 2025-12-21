@@ -3,7 +3,7 @@ import SafetyAnalysis from '@/components/safety/SafetyAnalysis';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Button from '@/components/ui/Button';
-import { formatDateTimeShort } from '@/lib/utils/dateFormat';
+import { formatDateTime } from '@/lib/utils/dateFormat';
 
 import { buildReportInsights } from '@/lib/services/reportInsightsService';
 import type { Database } from '@/types/database.types';
@@ -73,7 +73,7 @@ export default async function ReportResultPage({ params }: { params: Promise<{ i
                     <div>
                         <dt className="text-gray-500">일시</dt>
                         <dd className="font-medium text-gray-900">
-                            {formatDateTimeShort(activity.startTime)}
+                            {formatDateTime(activity.startTime)}
                         </dd>
                     </div>
                     <div>
