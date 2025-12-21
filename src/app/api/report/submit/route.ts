@@ -3,6 +3,7 @@ import { ZodError } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { parseReport } from '@/lib/utils/validators';
 import { analyzeSafety } from '@/lib/services/safetyService';
+import { fetchEnvironmentalInsights } from '@/lib/services/environmentService';
 import type { ReportRequest } from '@/types/api';
 import type { Database } from '@/types/database.types';
 
@@ -39,11 +40,32 @@ export async function POST(request: Request) {
 
   const { location, activity, contact, notes, companions } = payload;
 
-  // 1. Perform Safety Analysis
-  const safetyAnalysis = await analyzeSafety(payload);
-  console.log("Safety Analysis Result:", safetyAnalysis);
+  // 1. Fetch Environmental Data (weather, warnings, coast guard stations)
+  const environmentalData = await fetchEnvironmentalInsights(
+    location.coordinates.latitude,
+    location.coordinates.longitude
+  );
 
-  // 2. Submit Report with Analysis Data
+  console.log("Environmental Data:", {
+    hasWeather: !!environmentalData.weather,
+    warningsCount: environmentalData.warnings.length,
+    stationsCount: environmentalData.stations.length
+  });
+
+  // 2. Perform Safety Analysis with environmental context
+  const safetyAnalysis = await analyzeSafety(payload, {
+    weather: environmentalData.weather,
+    warnings: environmentalData.warnings,
+    stations: environmentalData.stations
+  });
+  
+  console.log("Safety Analysis Result:", {
+    score: safetyAnalysis.score,
+    level: safetyAnalysis.level,
+    riskFactorsCount: safetyAnalysis.risk_factors.length
+  });
+
+  // 3. Submit Report with Analysis Data
   const { data, error: rpcError } = await supabase.rpc('submit_report', {
     location_name: location.name,
     location_lat: location.coordinates.latitude,
