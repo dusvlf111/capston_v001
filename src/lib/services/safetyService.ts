@@ -228,8 +228,9 @@ export async function analyzeSafety(
     }
 
     // 활동 시간 분석 (0-15점 감점)
+    // ISO 문자열을 로컬 시간으로 변환하여 시간 판단
     const startTime = new Date(data.activity.startTime);
-    const hour = startTime.getHours();
+    const hour = startTime.getHours(); // 로컬 시간대의 시간
     if (hour < 5 || hour >= 20) {
         applyDeduction(15, 'activity', deductions, scoreRef);
         addRisk(risk_factors, {

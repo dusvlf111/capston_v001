@@ -21,6 +21,7 @@ const formatDateTimeValue = (value?: string) => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
 
+  // 로컬 시간대로 표시
   const year = date.getFullYear();
   const month = pad(date.getMonth() + 1);
   const day = pad(date.getDate());
@@ -32,11 +33,28 @@ const formatDateTimeValue = (value?: string) => {
 
 const toISOStringFromLocal = (value: string) => {
   if (!value) return undefined;
+  // datetime-local 값은 "YYYY-MM-DDTHH:mm" 형식
+  // 이를 로컬 시간으로 해석하고 ISO 문자열로 변환
   const normalized = value.length === 16 ? `${value}:00` : value;
-  const date = new Date(normalized);
+  
+  // 로컬 시간을 명시적으로 파싱
+  const parts = normalized.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
+  if (!parts) return undefined;
+  
+  const [, year, month, day, hours, minutes, seconds] = parts;
+  const date = new Date(
+    parseInt(year),
+    parseInt(month) - 1, // 월은 0부터 시작
+    parseInt(day),
+    parseInt(hours),
+    parseInt(minutes),
+    parseInt(seconds)
+  );
+  
   if (Number.isNaN(date.getTime())) {
     return undefined;
   }
+  
   return date.toISOString();
 };
 
