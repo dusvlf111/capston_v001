@@ -76,18 +76,18 @@ export default function RecentReports({ reports }: RecentReportsProps) {
                 <p className="text-sm text-slate-400">
                   {report.location.name}
                 </p>
-                </div>
-                {report.safety_score !== null && (
-                  <div className="text-right ml-4">
-                    <div className="text-2xl font-bold text-sky-400">
-                      {Math.round(report.safetyScore)}
-                    </div>
-                    <div className="text-xs text-slate-500">안전점수</div>
-                  </div>
-                )}
               </div>
+              {report.safetyScore !== null && (
+                <div className="text-right ml-4">
+                  <div className="text-2xl font-bold text-sky-400">
+                    {Math.round(report.safetyScore)}
+                  </div>
+                  <div className="text-xs text-slate-500">안전점수</div>
+                </div>
+              )}
+            </div>
 
-              <div className="flex items-center gap-4 text-xs text-slate-500">
+            <div className="flex items-center gap-4 text-xs text-slate-500">
                 <span className="flex items-center gap-1">
                   <svg
                     className="w-4 h-4"
