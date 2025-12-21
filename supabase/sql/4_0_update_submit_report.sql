@@ -42,13 +42,13 @@ BEGIN
     RAISE EXCEPTION '참가자 수는 1명 이상이어야 합니다.';
   END IF;
 
-  -- Use provided safety score or default to 80
-  v_safety_score := COALESCE((analysis_data->>'score')::INTEGER, 80);
+  -- Use provided safety score or default to 70
+  v_safety_score := COALESCE((analysis_data->>'score')::INTEGER, 70);
 
   -- Determine status based on score
-  IF v_safety_score >= 80 THEN
+  IF v_safety_score >= 85 THEN
     v_status := 'APPROVED';
-  ELSIF v_safety_score >= 50 THEN
+  ELSIF v_safety_score >= 60 THEN
     v_status := 'CAUTION';
   ELSE
     v_status := 'DENIED';

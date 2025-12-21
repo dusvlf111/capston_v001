@@ -22,7 +22,7 @@ SET search_path = public
 AS $$
 DECLARE
   v_user_id UUID := auth.uid();
-  v_safety_score INTEGER := 80;
+  v_safety_score INTEGER := 70;
   v_status TEXT := 'CAUTION';
   v_report RECORD;
   v_payload JSONB;
@@ -44,16 +44,16 @@ BEGIN
   v_duration_minutes := GREATEST(1, (EXTRACT(EPOCH FROM (end_time - start_time)) / 60)::INTEGER);
 
   -- Temporary safety score calculation (Edge Function will replace later)
-  v_safety_score := 92
-    - LEAST(30, participants * 2)
-    - LEAST(20, v_duration_minutes / 10)
-    - CASE WHEN activity_type IN ('스쿠버다이빙', '수상오토바이') THEN 15 ELSE 0 END;
+  v_safety_score := 85
+    - LEAST(35, participants * 3)
+    - LEAST(25, v_duration_minutes / 8)
+    - CASE WHEN activity_type IN ('스쿠버다이빙', '수상오토바이') THEN 20 ELSE 0 END;
 
-  v_safety_score := LEAST(95, GREATEST(10, v_safety_score));
+  v_safety_score := LEAST(90, GREATEST(10, v_safety_score));
 
-  IF v_safety_score >= 75 THEN
+  IF v_safety_score >= 85 THEN
     v_status := 'APPROVED';
-  ELSIF v_safety_score >= 50 THEN
+  ELSIF v_safety_score >= 60 THEN
     v_status := 'CAUTION';
   ELSE
     v_status := 'DENIED';
