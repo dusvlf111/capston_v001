@@ -56,12 +56,12 @@ export default function Home() {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 mt-16 max-w-3xl mx-auto">
               <div className="text-center">
-                <div className="text-3xl font-bold text-blue-400 mb-2">AI</div>
+                <div className="text-3xl font-bold text-blue-400 mb-2">🤖 AI</div>
                 <div className="text-sm text-slate-400">실시간 안전 분석</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-cyan-400 mb-2">24/7</div>
-                <div className="text-sm text-slate-400">기상 모니터링</div>
+                <div className="text-3xl font-bold text-cyan-400 mb-2">🌤️</div>
+                <div className="text-sm text-slate-400">실시간 기상 정보</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-sky-400 mb-2">🚨</div>
