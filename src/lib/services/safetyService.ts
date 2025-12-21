@@ -278,7 +278,7 @@ export async function analyzeSafety(
             });
             recommendations.push('반드시 2인 이상 버디와 함께 다이빙하세요.');
         }
-    } else if (data.activity.type === '수상오토바이' || data.activity.type === '제트스키') {
+    } else if (data.activity.type === '수상오토바이') {
         applyDeduction(5, 'activity', deductions, scoreRef);
         addRisk(risk_factors, {
             type: 'OTHER',
