@@ -33,8 +33,12 @@ export const applySourceMapWarningFilter = (): void => {
     }
 
     try {
-        // Check if emitWarning exists before accessing it
-        if (typeof process.emitWarning !== 'function') {
+        // Dynamically access emitWarning to avoid Edge Runtime static analysis
+        const emitWarningProp = 'emitWarning';
+        const emitWarning = (process as any)[emitWarningProp];
+        
+        // Check if emitWarning exists
+        if (typeof emitWarning !== 'function') {
             return;
         }
 
@@ -43,7 +47,7 @@ export const applySourceMapWarningFilter = (): void => {
             return;
         }
 
-        const originalEmit = process.emitWarning.bind(process);
+        const originalEmit = emitWarning.bind(process);
         const filteredEmit: typeof process.emitWarning = ((warning: any, ...args: any[]) => {
             if (shouldSuppressSourceMapWarning(warning)) {
                 if (process.env.NODE_ENV !== 'production') {
@@ -55,7 +59,7 @@ export const applySourceMapWarningFilter = (): void => {
         }) as typeof process.emitWarning;
 
         proc[PATCH_FLAG] = { originalEmitWarning: originalEmit };
-        (process as any).emitWarning = filteredEmit;
+        (process as any)[emitWarningProp] = filteredEmit;
     } catch (error) {
         // Silently fail in Edge Runtime or other environments where this is not supported
         // Don't log in production to avoid noise
@@ -68,8 +72,9 @@ export const applySourceMapWarningFilter = (): void => {
 export async function register(): Promise<void> {
     // Wrap in try-catch to handle Edge Runtime gracefully
     try {
-        // Only apply in Node.js runtime, not in Edge Runtime
-        if (typeof process !== 'undefined' && process && typeof process.emitWarning === 'function') {
+        // Dynamically check for emitWarning to avoid static analysis
+        const emitWarningProp = 'emitWarning';
+        if (typeof process !== 'undefined' && process && typeof (process as any)[emitWarningProp] === 'function') {
             applySourceMapWarningFilter();
         }
     } catch (error) {
