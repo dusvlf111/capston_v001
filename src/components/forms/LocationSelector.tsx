@@ -40,6 +40,7 @@ export default function LocationSelector({ control, className }: LocationSelecto
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const {
     field: locationNameField,
@@ -159,22 +160,50 @@ export default function LocationSelector({ control, className }: LocationSelecto
     }
   }, [latitudeField.value, longitudeField.value, locationNameField.value, hasCoordinates]);
 
+  // Auto-search with debounce
+  useEffect(() => {
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Don't search if query is too short
+    if (searchQuery.trim().length < 2) {
+      setSearchResults([]);
+      setShowResults(false);
+      return;
+    }
+
+    // Set new timeout for debounced search
+    searchTimeoutRef.current = setTimeout(() => {
+      handleSearch();
+    }, 500); // 500ms debounce
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchQuery]);
+
   const handleSearch = async () => {
-    if (!searchQuery.trim()) {
-      setGeoError('검색어를 입력해주세요.');
+    const query = searchQuery.trim();
+    
+    if (!query || query.length < 2) {
+      setSearchResults([]);
+      setShowResults(false);
       return;
     }
 
     setIsSearching(true);
     setGeoError(null);
-    setSearchResults([]);
 
     try {
       // Add countrycodes=kr for better Korean results, and accept-language for Korean names
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?` +
         `format=json` +
-        `&q=${encodeURIComponent(searchQuery)}` +
+        `&q=${encodeURIComponent(query)}` +
         `&limit=10` +
         `&countrycodes=kr` +
         `&accept-language=ko`,
@@ -192,7 +221,6 @@ export default function LocationSelector({ control, className }: LocationSelecto
       const data = await response.json();
       
       if (data.length === 0) {
-        setGeoError('검색 결과가 없습니다. 다른 키워드로 시도해보세요.');
         setSearchResults([]);
         setShowResults(false);
       } else {
@@ -230,10 +258,27 @@ export default function LocationSelector({ control, className }: LocationSelecto
     setGeoError(null);
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    
+    // Clear error when user starts typing
+    if (geoError) {
+      setGeoError(null);
+    }
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      // Trigger immediate search on Enter
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
       handleSearch();
+    } else if (e.key === 'Escape') {
+      // Close results on Escape
+      setShowResults(false);
     }
   };
 
@@ -247,60 +292,71 @@ export default function LocationSelector({ control, className }: LocationSelecto
       {/* Address Search */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-slate-300">위치 검색</label>
-        <div className="flex gap-2">
-          <div className="flex-1 relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="예: 부산 해운대 해수욕장"
-              className="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-2 text-sm text-slate-50 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-400"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={handleClearSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
-                aria-label="검색어 지우기"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-          <Button
-            type="button"
-            variant="primary"
-            size="sm"
-            onClick={handleSearch}
-            isLoading={isSearching}
-            disabled={isSearching || !searchQuery.trim()}
-          >
-            {isSearching ? '검색 중...' : '검색'}
-          </Button>
-        </div>
-
-        {/* Search Results */}
-        {showResults && searchResults.length > 0 && (
-          <div className="max-h-64 overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 shadow-lg">
-            <div className="sticky top-0 bg-slate-800 px-4 py-2 text-xs font-medium text-slate-400 border-b border-slate-700">
-              {searchResults.length}개의 결과를 찾았습니다
-            </div>
-            {searchResults.map((result, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => handleSelectLocation(result)}
-                className="w-full px-4 py-3 text-left text-sm text-slate-200 hover:bg-slate-800 border-b border-slate-800 last:border-b-0 transition-colors"
-              >
-                <div className="flex items-start gap-2">
-                  <span className="text-sky-400 mt-0.5">📍</span>
-                  <span className="flex-1">{result.display_name}</span>
+        <div className="relative">
+          <div className="flex gap-2">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyPress}
+                onFocus={() => {
+                  // Show results again if there are any when input is focused
+                  if (searchResults.length > 0) {
+                    setShowResults(true);
+                  }
+                }}
+                placeholder="예: 부산 해운대 해수욕장"
+                className="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-2 text-sm text-slate-50 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                autoComplete="off"
+              />
+              {isSearching && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-sky-400 border-t-transparent"></div>
                 </div>
-              </button>
-            ))}
+              )}
+              {searchQuery && !isSearching && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                  aria-label="검색어 지우기"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
-        )}
+
+          {/* Search Results Dropdown */}
+          {showResults && searchResults.length > 0 && (
+            <div className="absolute z-10 mt-2 w-full max-h-64 overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 shadow-xl">
+              <div className="sticky top-0 bg-slate-800 px-4 py-2 text-xs font-medium text-slate-400 border-b border-slate-700">
+                {searchResults.length}개의 검색 결과
+              </div>
+              {searchResults.map((result, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleSelectLocation(result)}
+                  className="w-full px-4 py-3 text-left text-sm text-slate-200 hover:bg-slate-800 border-b border-slate-800 last:border-b-0 transition-colors"
+                >
+                  <div className="flex items-start gap-2">
+                    <span className="text-sky-400 mt-0.5">📍</span>
+                    <span className="flex-1 break-words">{result.display_name}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* No results message */}
+          {showResults && searchResults.length === 0 && searchQuery.length >= 2 && !isSearching && (
+            <div className="absolute z-10 mt-2 w-full rounded-xl border border-slate-700 bg-slate-900 shadow-xl p-4">
+              <p className="text-sm text-slate-400 text-center">검색 결과가 없습니다. 다른 키워드로 시도해보세요.</p>
+            </div>
+          )}
+        </div>
       </div>
 
       <Input
